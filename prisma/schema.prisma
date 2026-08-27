@@ -11,68 +11,69 @@ datasource db {
 // ============================================
 
 model Niche {
-  id          String    @id @default(cuid())
-  name        String    @unique
-  slug        String    @unique
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
   description String?
   image       String?
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  categories  Category[]
-  products    Product[]
-  brands      Brand[]
-  statistics  Statistic[]
+  categories Category[]
+  products   Product[]
+  brands     Brand[]
+  statistics Statistic[]
 
   @@map("niches")
 }
 
 model Category {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
-  slug        String    @unique
+  slug        String   @unique
   description String?
   image       String?
-  order       Int       @default(0)
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  parentId    String?
-  parent      Category?  @relation("CategoryParent", fields: [parentId], references: [id])
-  children    Category[] @relation("CategoryParent")
+  parentId String?
+  parent   Category?  @relation("CategoryParent", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryParent")
 
-  nicheId     String
-  niche       Niche      @relation(fields: [nicheId], references: [id], onDelete: Cascade)
-  products    Product[]
-  brands      Brand[]
+  nicheId  String
+  niche    Niche     @relation(fields: [nicheId], references: [id], onDelete: Cascade)
+  products Product[]
+  brands   Brand[]
 
-  bestOf      BestOf[]
-  guides      Guide[]
-  statistics  Statistic[]
+  bestOf     BestOf[]
+  guides     Guide[]
+  statistics Statistic[]
+  articles   Article[]
 
   @@unique([nicheId, slug])
   @@map("categories")
 }
 
 model Brand {
-  id           String    @id @default(cuid())
-  name         String    @unique
-  slug         String    @unique
+  id           String   @id @default(cuid())
+  name         String   @unique
+  slug         String   @unique
   description  String?
   logo         String?
   website      String?
   foundedYear  Int?
   headquarters String?
-  isActive     Boolean   @default(true)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  nicheId      String?
-  niche        Niche?    @relation(fields: [nicheId], references: [id])
-  products     Product[]
-  categories   Category[]
+  nicheId    String?
+  niche      Niche?     @relation(fields: [nicheId], references: [id])
+  products   Product[]
+  categories Category[]
 
   @@map("brands")
 }
@@ -82,40 +83,38 @@ model Brand {
 // ============================================
 
 model Product {
-  id               String    @id @default(cuid())
+  id               String   @id @default(cuid())
   name             String
-  slug             String    @unique
-  description      String?   @db.Text
-  shortDescription  String?   @db.Text
+  slug             String   @unique
+  description      String?  @db.Text
+  shortDescription String?  @db.Text
   price            Float?
-  currency         String    @default("USD")
-  rating           Float?    @default(0)
-  reviewCount      Int       @default(0)
+  currency         String   @default("USD")
+  rating           Float?   @default(0)
+  reviewCount      Int      @default(0)
   bestFor          String?
-  availability     String    @default("IN_STOCK")
-  featured         Boolean   @default(false)
-  isActive         Boolean   @default(true)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  availability     String   @default("IN_STOCK")
+  featured         Boolean  @default(false)
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  specifications   Json?
-  features         Json?
-  images           String[]
+  specifications Json?
+  features       Json?
+  images         String[]
 
-  brandId          String?
-  brand            Brand?    @relation(fields: [brandId], references: [id])
+  brandId    String?
+  brand      Brand?    @relation(fields: [brandId], references: [id])
+  nicheId    String?
+  niche      Niche?    @relation(fields: [nicheId], references: [id])
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
 
-  nicheId          String?
-  niche            Niche?    @relation(fields: [nicheId], references: [id])
-
-  categoryId       String?
-  category         Category? @relation(fields: [categoryId], references: [id])
-
-  affiliateLinks   AffiliateLink[]
-  reviews          Review[]
+  affiliateLinks     AffiliateLink[]
+  reviews            Review[]
   comparisonProducts ComparisonProduct[]
-  bestOfEntries    BestOfEntry[]
-  guideProducts    GuideProduct[]
+  bestOfEntries      BestOfEntry[]
+  guideProducts      GuideProduct[]
 
   @@map("products")
 }
@@ -125,21 +124,21 @@ model Product {
 // ============================================
 
 model AffiliateLink {
-  id           String    @id @default(cuid())
-  url          String    @db.Text
-  label        String    @default("Check Price")
-  merchant     String
-  trackingUrl  String?   @db.Text
-  country      String    @default("US")
-  isActive     Boolean   @default(true)
-  priority     Int       @default(0)
-  clicks       Int       @default(0)
-  lastClicked  DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id          String    @id @default(cuid())
+  url         String    @db.Text
+  label       String    @default("Check Price")
+  merchant    String
+  trackingUrl String?   @db.Text
+  country     String    @default("US")
+  isActive    Boolean   @default(true)
+  priority    Int       @default(0)
+  clicks      Int       @default(0)
+  lastClicked DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  productId    String
-  product      Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@map("affiliate_links")
 }
@@ -149,33 +148,33 @@ model AffiliateLink {
 // ============================================
 
 model Review {
-  id              String    @id @default(cuid())
-  title           String
-  slug            String    @unique
-  content         String?   @db.Text
-  excerpt         String?   @db.Text
-  rating          Float?    @default(0)
-  pros            String[]  @default([])
-  cons            String[]  @default([])
-  verdict         String?   @db.Text
-  bestFor         String?
-  featured        Boolean   @default(false)
-  status          String    @default("DRAFT")
-  views           Int       @default(0)
-  publishedAt     DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  content     String?   @db.Text
+  excerpt     String?   @db.Text
+  rating      Float?    @default(0)
+  pros        String[]  @default([])
+  cons        String[]  @default([])
+  verdict     String?   @db.Text
+  bestFor     String?
+  featured    Boolean   @default(false)
+  status      String    @default("DRAFT")
+  views       Int       @default(0)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   seoTitle        String?
   metaDescription String?
 
-  productId       String
-  product         Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  authorId        String
-  author          User      @relation(fields: [authorId], references: [id])
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
 
-  contentBlocks   Json?     @default("[]")
+  contentBlocks Json? @default("[]")
 
   @@map("reviews")
 }
@@ -185,44 +184,44 @@ model Review {
 // ============================================
 
 model Comparison {
-  id                String              @id @default(cuid())
+  id                String    @id @default(cuid())
   title             String
-  slug              String              @unique
-  content           String?             @db.Text
-  excerpt           String?             @db.Text
+  slug              String    @unique
+  content           String?   @db.Text
+  excerpt           String?   @db.Text
   winner            String?
-  winnerExplanation String?             @db.Text
-  featured          Boolean             @default(false)
-  status            String              @default("DRAFT")
-  views             Int                 @default(0)
+  winnerExplanation String?   @db.Text
+  featured          Boolean   @default(false)
+  status            String    @default("DRAFT")
+  views             Int       @default(0)
   publishedAt       DateTime?
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
-  seoTitle          String?
-  metaDescription   String?
+  seoTitle        String?
+  metaDescription String?
 
-  products          ComparisonProduct[]
+  products ComparisonProduct[]
 
-  authorId          String
-  author            User                @relation(fields: [authorId], references: [id])
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
 
-  contentBlocks     Json?               @default("[]")
+  contentBlocks Json? @default("[]")
 
   @@map("comparisons")
 }
 
 model ComparisonProduct {
-  id             String     @id @default(cuid())
-  comparisonId   String
-  productId      String
-  strengths      String[]   @default([])
-  weaknesses     String[]   @default([])
-  bestFor        String?
-  order          Int        @default(0)
+  id           String   @id @default(cuid())
+  comparisonId String
+  productId    String
+  strengths    String[] @default([])
+  weaknesses   String[] @default([])
+  bestFor      String?
+  order        Int      @default(0)
 
-  comparison     Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
-  product        Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  comparison Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([comparisonId, productId])
   @@map("comparison_products")
@@ -233,47 +232,47 @@ model ComparisonProduct {
 // ============================================
 
 model BestOf {
-  id              String        @id @default(cuid())
-  title           String
-  slug            String        @unique
-  content         String?       @db.Text
-  excerpt         String?       @db.Text
-  introduction    String?       @db.Text
-  featured        Boolean       @default(false)
-  status          String        @default("DRAFT")
-  views           Int           @default(0)
-  publishedAt     DateTime?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id           String    @id @default(cuid())
+  title        String
+  slug         String    @unique
+  content      String?   @db.Text
+  excerpt      String?   @db.Text
+  introduction String?   @db.Text
+  featured     Boolean   @default(false)
+  status       String    @default("DRAFT")
+  views        Int       @default(0)
+  publishedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   seoTitle        String?
   metaDescription String?
 
-  categoryId      String?
-  category        Category?     @relation(fields: [categoryId], references: [id])
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
 
-  authorId        String
-  author          User          @relation(fields: [authorId], references: [id])
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
 
-  entries         BestOfEntry[]
+  entries BestOfEntry[]
 
-  contentBlocks   Json?         @default("[]")
+  contentBlocks Json? @default("[]")
 
   @@map("best_of")
 }
 
 model BestOfEntry {
-  id          String    @id @default(cuid())
-  bestOfId    String
-  productId   String
-  order       Int       @default(0)
-  bestFor     String?
-  summary     String?   @db.Text
-  pros        String[]  @default([])
-  cons        String[]  @default([])
+  id        String   @id @default(cuid())
+  bestOfId  String
+  productId String
+  order     Int      @default(0)
+  bestFor   String?
+  summary   String?  @db.Text
+  pros      String[] @default([])
+  cons      String[] @default([])
 
-  bestOf      BestOf    @relation(fields: [bestOfId], references: [id], onDelete: Cascade)
-  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  bestOf  BestOf  @relation(fields: [bestOfId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([bestOfId, productId])
   @@map("best_of_entries")
@@ -284,64 +283,13 @@ model BestOfEntry {
 // ============================================
 
 model Guide {
-  id               String         @id @default(cuid())
-  title            String
-  slug             String         @unique
-  content          String?        @db.Text
-  excerpt          String?        @db.Text
-  introduction     String?        @db.Text
-  tableOfContents  Json?          @default("[]")
-  featured         Boolean        @default(false)
-  status           String         @default("DRAFT")
-  views            Int            @default(0)
-  publishedAt      DateTime?
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-
-  seoTitle         String?
-  metaDescription  String?
-
-  categoryId       String?
-  category         Category?      @relation(fields: [categoryId], references: [id])
-
-  authorId         String
-  author           User           @relation(fields: [authorId], references: [id])
-
-  guideProducts    GuideProduct[]
-
-  contentBlocks    Json?          @default("[]")
-
-  @@map("guides")
-}
-
-model GuideProduct {
-  id          String    @id @default(cuid())
-  guideId     String
-  productId   String
-  order       Int       @default(0)
-  context     String?   @db.Text
-
-  guide       Guide     @relation(fields: [guideId], references: [id], onDelete: Cascade)
-  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@unique([guideId, productId])
-  @@map("guide_products")
-}
-
-// ============================================
-// STATISTICS MODELS
-// ============================================
-
-model Statistic {
   id              String    @id @default(cuid())
   title           String
   slug            String    @unique
   content         String?   @db.Text
   excerpt         String?   @db.Text
-  data            Json      @default("{}")
-  sources         String[]  @default([])
-  methodology     String?   @db.Text
-  embedCode       String?   @db.Text
+  introduction    String?   @db.Text
+  tableOfContents Json?     @default("[]")
   featured        Boolean   @default(false)
   status          String    @default("DRAFT")
   views           Int       @default(0)
@@ -352,16 +300,67 @@ model Statistic {
   seoTitle        String?
   metaDescription String?
 
-  nicheId         String?
-  niche           Niche?    @relation(fields: [nicheId], references: [id])
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
 
-  categoryId      String?
-  category        Category? @relation(fields: [categoryId], references: [id])
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
 
-  authorId        String
-  author          User      @relation(fields: [authorId], references: [id])
+  guideProducts GuideProduct[]
 
-  contentBlocks   Json?     @default("[]")
+  contentBlocks Json? @default("[]")
+
+  @@map("guides")
+}
+
+model GuideProduct {
+  id        String  @id @default(cuid())
+  guideId   String
+  productId String
+  order     Int     @default(0)
+  context   String? @db.Text
+
+  guide   Guide   @relation(fields: [guideId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([guideId, productId])
+  @@map("guide_products")
+}
+
+// ============================================
+// STATISTICS MODELS
+// ============================================
+
+model Statistic {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique
+  content     String?   @db.Text
+  excerpt     String?   @db.Text
+  data        Json      @default("{}")
+  sources     String[]  @default([])
+  methodology String?   @db.Text
+  embedCode   String?   @db.Text
+  featured    Boolean   @default(false)
+  status      String    @default("DRAFT")
+  views       Int       @default(0)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  seoTitle        String?
+  metaDescription String?
+
+  nicheId String?
+  niche   Niche?  @relation(fields: [nicheId], references: [id])
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id])
+
+  contentBlocks Json? @default("[]")
 
   @@map("statistics")
 }
@@ -371,25 +370,24 @@ model Statistic {
 // ============================================
 
 model User {
-  id              String    @id @default(cuid())
-  name            String?
-  email           String    @unique
-  emailVerified   DateTime?
-  password        String?
-  image           String?
-  role            Role      @default(USER)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?
+  image         String?
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  accounts        Account[]
-  sessions        Session[]
-
-  articles        Article[]     @relation("AuthorArticles")
-  reviews         Review[]
-  comparisons     Comparison[]
-  bestOf          BestOf[]
-  guides          Guide[]
-  statistics      Statistic[]
+  accounts    Account[]
+  sessions    Session[]
+  articles    Article[]    @relation("AuthorArticles")
+  reviews     Review[]
+  comparisons Comparison[]
+  bestOf      BestOf[]
+  guides      Guide[]
+  statistics  Statistic[]
 
   @@map("users")
 }
@@ -408,7 +406,7 @@ model Account {
   id_token          String? @db.Text
   session_state     String?
 
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
@@ -420,7 +418,7 @@ model Session {
   userId       String
   expires      DateTime
 
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sessions")
 }
@@ -439,16 +437,28 @@ model VerificationToken {
 // ============================================
 
 model Article {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
-  slug        String   @unique
-  content     String?  @db.Text
-  status      String   @default("DRAFT")
-  authorId    String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  slug        String    @unique
+  content     String?   @db.Text
+  excerpt     String?   @db.Text
+  status      String    @default("DRAFT")
+  featured    Boolean   @default(false)
+  views       Int       @default(0)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  author      User     @relation("AuthorArticles", fields: [authorId], references: [id])
+  seoTitle        String?
+  metaDescription String?
+
+  contentBlocks Json? @default("[]")
+
+  authorId String
+  author   User   @relation("AuthorArticles", fields: [authorId], references: [id])
+
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
 
   @@map("articles")
 }
