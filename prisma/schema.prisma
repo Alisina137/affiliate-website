@@ -125,13 +125,11 @@ model Product {
 // ============================================
 
 model AffiliateLink {
-  id    String @id @default(cuid())
-  url   String @db.Text
-  label String @default("Check Price")
-
-  merchantId String?
-  merchant   AffiliateMerchant? @relation(fields: [merchantId], references: [id])
-
+  id          String    @id @default(cuid())
+  url         String    @db.Text
+  label       String    @default("Check Price")
+  merchant    String
+  merchantId  String?
   trackingUrl String?   @db.Text
   country     String    @default("US")
   isActive    Boolean   @default(true)
@@ -141,9 +139,8 @@ model AffiliateLink {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
+  productId       String
+  product         Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
   affiliateClicks AffiliateClick[]
 
   @@map("affiliate_links")
@@ -168,22 +165,17 @@ model AffiliateProgram {
 }
 
 model AffiliateMerchant {
-  id          String  @id @default(cuid())
+  id          String           @id @default(cuid())
   name        String
-  slug        String  @unique
+  slug        String           @unique
   description String?
   logo        String?
   website     String?
-
-  programId String
-
-  program AffiliateProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
-
-  affiliateLinks AffiliateLink[]
-
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  programId   String
+  program     AffiliateProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+  isActive    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 
   @@unique([programId, name])
   @@map("affiliate_merchants")
@@ -207,6 +199,98 @@ model AffiliateClick {
   createdAt       DateTime      @default(now())
 
   @@map("affiliate_clicks")
+}
+
+// ============================================
+// AI MODELS
+// ============================================
+
+model AIGeneration {
+  id                String             @id @default(cuid())
+  userId            String
+  user              User               @relation(fields: [userId], references: [id])
+  contentType       String // REVIEW, COMPARISON, BEST_OF, GUIDE, STATISTICS, PRODUCT, SEO, FAQ, OUTLINE
+  contentId         String? // ID of the content being generated/edited
+  operation         String // GENERATE, REGENERATE, IMPROVE, REWRITE, EXPAND, SHORTEN, ANALYZE
+  model             String // AI model used (e.g., "gpt-4", "claude-3")
+  promptVersion     String? // Version of the prompt used
+  input             Json // The input sent to the AI
+  output            Json? // The output received from the AI
+  status            String             @default("PENDING") // PENDING, SUCCESS, FAILED, PARTIAL
+  error             String?            @db.Text
+  inputTokens       Int? // Number of tokens in the input
+  outputTokens      Int? // Number of tokens in the output
+  estimatedCost     Float? // Estimated cost in USD
+  duration          Int? // Generation time in milliseconds
+  createdAt         DateTime           @default(now())
+  aicontentVersions AIContentVersion[]
+  aiusages          AIUsage[]
+
+  @@index([userId, contentType, status])
+  @@index([createdAt])
+  @@map("ai_generations")
+}
+
+model AIContentVersion {
+  id           String        @id @default(cuid())
+  contentId    String // ID of the content (review, article, etc.)
+  contentType  String // Type of content (review, article, comparison, etc.)
+  version      Int           @default(1)
+  data         Json // Full snapshot of the content at this version
+  changes      Json? // What changed from previous version
+  createdBy    String
+  creator      User          @relation(fields: [createdBy], references: [id])
+  generationId String? // Reference to the AIGeneration that created this version
+  generation   AIGeneration? @relation(fields: [generationId], references: [id])
+  isCurrent    Boolean       @default(true)
+  changeType   String // MANUAL, AI_GENERATED, AI_IMPROVED, AI_REWRITTEN
+  createdAt    DateTime      @default(now())
+
+  @@unique([contentId, contentType, version])
+  @@index([contentId, contentType, isCurrent])
+  @@map("ai_content_versions")
+}
+
+model AIPromptTemplate {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  slug         String   @unique
+  description  String?  @db.Text
+  contentType  String // REVIEW, COMPARISON, BEST_OF, GUIDE, STATISTICS, PRODUCT, SEO, FAQ, OUTLINE
+  operation    String // GENERATE, IMPROVE, REWRITE, EXPAND, SHORTEN, ANALYZE
+  systemPrompt String?  @db.Text
+  userPrompt   String   @db.Text
+  version      Int      @default(1)
+  isActive     Boolean  @default(true)
+  isDefault    Boolean  @default(false)
+  metadata     Json? // Additional metadata (temperature, max_tokens, etc.)
+  createdBy    String
+  creator      User     @relation(fields: [createdBy], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([name, version])
+  @@map("ai_prompt_templates")
+}
+
+model AIUsage {
+  id           String        @id @default(cuid())
+  userId       String
+  user         User          @relation(fields: [userId], references: [id])
+  contentType  String // REVIEW, COMPARISON, BEST_OF, GUIDE, STATISTICS, PRODUCT, SEO, FAQ, OUTLINE
+  operation    String // GENERATE, IMPROVE, REWRITE, EXPAND, SHORTEN, ANALYZE
+  model        String
+  inputTokens  Int
+  outputTokens Int
+  cost         Float
+  duration     Int
+  generationId String?
+  generation   AIGeneration? @relation(fields: [generationId], references: [id])
+  createdAt    DateTime      @default(now())
+
+  @@index([userId, contentType])
+  @@index([createdAt])
+  @@map("ai_usage")
 }
 
 // ============================================
@@ -455,6 +539,12 @@ model User {
   guides          Guide[]
   statistics      Statistic[]
   affiliateClicks AffiliateClick[]
+
+  // AI Relations
+  aiGenerations     AIGeneration[]
+  aiContentVersions AIContentVersion[]
+  aiPromptTemplates AIPromptTemplate[]
+  aiUsage           AIUsage[]
 
   @@map("users")
 }
