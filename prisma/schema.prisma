@@ -111,6 +111,7 @@ model Product {
   category   Category? @relation(fields: [categoryId], references: [id])
 
   affiliateLinks     AffiliateLink[]
+  affiliateClicks    AffiliateClick[]
   reviews            Review[]
   comparisonProducts ComparisonProduct[]
   bestOfEntries      BestOfEntry[]
@@ -124,10 +125,13 @@ model Product {
 // ============================================
 
 model AffiliateLink {
-  id          String    @id @default(cuid())
-  url         String    @db.Text
-  label       String    @default("Check Price")
-  merchant    String
+  id    String @id @default(cuid())
+  url   String @db.Text
+  label String @default("Check Price")
+
+  merchantId String?
+  merchant   AffiliateMerchant? @relation(fields: [merchantId], references: [id])
+
   trackingUrl String?   @db.Text
   country     String    @default("US")
   isActive    Boolean   @default(true)
@@ -140,7 +144,69 @@ model AffiliateLink {
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
+  affiliateClicks AffiliateClick[]
+
   @@map("affiliate_links")
+}
+
+model AffiliateProgram {
+  id             String   @id @default(cuid())
+  name           String   @unique
+  slug           String   @unique
+  description    String?  @db.Text
+  logo           String?
+  website        String?
+  commission     String?
+  cookieDuration Int?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  merchants AffiliateMerchant[]
+
+  @@map("affiliate_programs")
+}
+
+model AffiliateMerchant {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String?
+  logo        String?
+  website     String?
+
+  programId String
+
+  program AffiliateProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  affiliateLinks AffiliateLink[]
+
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([programId, name])
+  @@map("affiliate_merchants")
+}
+
+model AffiliateClick {
+  id              String        @id @default(cuid())
+  affiliateLinkId String
+  affiliateLink   AffiliateLink @relation(fields: [affiliateLinkId], references: [id], onDelete: Cascade)
+  productId       String?
+  product         Product?      @relation(fields: [productId], references: [id])
+  userId          String?
+  user            User?         @relation(fields: [userId], references: [id])
+  ipAddress       String?
+  userAgent       String?       @db.Text
+  referer         String?       @db.Text
+  country         String?
+  device          String?
+  converted       Boolean       @default(false)
+  conversionValue Float?
+  createdAt       DateTime      @default(now())
+
+  @@map("affiliate_clicks")
 }
 
 // ============================================
@@ -380,14 +446,15 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts    Account[]
-  sessions    Session[]
-  articles    Article[]    @relation("AuthorArticles")
-  reviews     Review[]
-  comparisons Comparison[]
-  bestOf      BestOf[]
-  guides      Guide[]
-  statistics  Statistic[]
+  accounts        Account[]
+  sessions        Session[]
+  articles        Article[]        @relation("AuthorArticles")
+  reviews         Review[]
+  comparisons     Comparison[]
+  bestOf          BestOf[]
+  guides          Guide[]
+  statistics      Statistic[]
+  affiliateClicks AffiliateClick[]
 
   @@map("users")
 }
