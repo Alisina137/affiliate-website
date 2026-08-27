@@ -6,6 +6,68 @@ datasource db {
   provider = "postgresql"
 }
 
+model Niche {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  image       String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  categories  Category[]
+  products    Product[]
+  brands      Brand[]
+
+  @@map("niches")
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  image       String?
+  order       Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  parentId    String?
+  parent      Category? @relation("CategoryParent", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryParent")
+
+  nicheId     String
+  niche       Niche     @relation(fields: [nicheId], references: [id], onDelete: Cascade)
+  products    Product[]
+  brands      Brand[]
+
+  @@unique([nicheId, slug])
+  @@map("categories")
+}
+
+model Brand {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  logo        String?
+  website     String?
+  foundedYear Int?
+  headquarters String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  nicheId     String?
+  niche       Niche?    @relation(fields: [nicheId], references: [id])
+  products    Product[]
+  categories  Category[]
+
+  @@map("brands")
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -16,11 +78,9 @@ model User {
   role          Role      @default(USER)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-
   accounts      Account[]
   sessions      Session[]
   articles      Article[] @relation("AuthorArticles")
-  
   @@map("users")
 }
 
@@ -37,9 +97,7 @@ model Account {
   scope             String?
   id_token          String? @db.Text
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@unique([provider, providerAccountId])
   @@map("accounts")
 }
@@ -50,7 +108,6 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   @@map("sessions")
 }
 
@@ -58,15 +115,23 @@ model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
-
   @@unique([identifier, token])
   @@map("verification_tokens")
 }
 
-enum Role {
-  ADMIN
-  EDITOR
-  USER
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  brandId     String?
+  brand       Brand?   @relation(fields: [brandId], references: [id])
+  nicheId     String?
+  niche       Niche?   @relation(fields: [nicheId], references: [id])
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id])
+  @@map("products")
 }
 
 model Article {
@@ -78,8 +143,12 @@ model Article {
   authorId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   author    User     @relation("AuthorArticles", fields: [authorId], references: [id])
-
   @@map("articles")
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  USER
 }
