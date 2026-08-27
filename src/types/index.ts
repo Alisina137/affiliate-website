@@ -2,3 +2,4 @@
 export * from "./user"
 export * from "./auth"
 export * from "./core"
+export * from "./product"
