@@ -37,7 +37,6 @@ type GetAllParams = {
 }
 
 export const productService = {
-  // Get all products with filtering
   async getAll(params: GetAllParams = {}) {
     const {
       categoryId,
@@ -60,11 +59,10 @@ export const productService = {
     if (brandId) where.brandId = brandId
     if (nicheId) where.nicheId = nicheId
     if (featured !== undefined) where.featured = featured
-    if (minPrice !== undefined) {
-      where.price = { ...where.price, gte: minPrice }
-    }
-    if (maxPrice !== undefined) {
-      where.price = { ...where.price, lte: maxPrice }
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      where.price = {}
+      if (minPrice !== undefined) where.price.gte = minPrice
+      if (maxPrice !== undefined) where.price.lte = maxPrice
     }
     if (search) {
       where.OR = [
@@ -98,13 +96,16 @@ export const productService = {
     }
   },
 
-  // Get a product by slug
   async getBySlug(slug: string) {
     return db.product.findUnique({
-      where: { slug },
+      where: { slug, isActive: true },
       include: {
         brand: true,
-        category: true,
+        category: {
+          include: {
+            niche: true,
+          },
+        },
         niche: true,
         affiliateLinks: {
           where: { isActive: true },
@@ -113,12 +114,20 @@ export const productService = {
         reviews: {
           where: { status: "PUBLISHED" },
           orderBy: { createdAt: "desc" },
+          include: {
+            author: {
+              select: {
+                id: true,
+                name: true,
+                image: true,
+              },
+            },
+          },
         },
       },
     })
   },
 
-  // Get a product by ID
   async getById(id: string) {
     return db.product.findUnique({
       where: { id },
@@ -130,11 +139,15 @@ export const productService = {
           where: { isActive: true },
           orderBy: { priority: "desc" },
         },
+        reviews: {
+          where: { status: "PUBLISHED" },
+          orderBy: { createdAt: "desc" },
+          take: 5,
+        },
       },
     })
   },
 
-  // Create a new product
   async create(data: ProductCreateInput) {
     return db.product.create({
       data: {
@@ -156,7 +169,6 @@ export const productService = {
     })
   },
 
-  // Update a product
   async update(id: string, data: ProductUpdateInput) {
     return db.product.update({
       where: { id },
@@ -164,7 +176,6 @@ export const productService = {
     })
   },
 
-  // Delete a product (soft delete)
   async delete(id: string) {
     return db.product.update({
       where: { id },
@@ -172,7 +183,6 @@ export const productService = {
     })
   },
 
-  // Get popular products
   async getPopular(limit: number = 10) {
     return db.product.findMany({
       where: { isActive: true },
@@ -185,7 +195,6 @@ export const productService = {
     })
   },
 
-  // Get featured products
   async getFeatured(limit: number = 6) {
     return db.product.findMany({
       where: { isActive: true, featured: true },
@@ -198,7 +207,6 @@ export const productService = {
     })
   },
 
-  // Search products
   async search(query: string, limit: number = 10) {
     if (!query || query.length < 2) {
       return []
@@ -222,4 +230,27 @@ export const productService = {
       take: limit,
     })
   },
+
+  // Get related products
+  async getRelated(productId: string, categoryId?: string, limit: number = 4) {
+    const product = await db.product.findUnique({
+      where: { id: productId },
+      select: { categoryId: true },
+    })
+
+    return db.product.findMany({
+      where: {
+        id: { not: productId },
+        isActive: true,
+        categoryId: categoryId || product?.categoryId || undefined,
+      },
+      take: limit,
+      include: {
+        brand: true,
+        category: true,
+      },
+    })
+  },
 }
+
+export default productService
