@@ -174,7 +174,6 @@ export const comparisonService = {
   async update(id: string, data: ComparisonUpdateInput) {
     const { products, ...comparisonData } = data
 
-    // If products are provided, update them
     if (products) {
       // Delete existing products
       await db.comparisonProduct.deleteMany({
