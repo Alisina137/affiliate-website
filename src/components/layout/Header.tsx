@@ -1,6 +1,6 @@
 ﻿// src/components/layout/Header.tsx
 import Link from "next/link"
-import { Search, Menu } from "lucide-react"  // Removed X
+import { Search, Menu } from "lucide-react"
 import { AuthStatus } from "@/components/auth"
 
 export function Header() {
@@ -35,9 +35,9 @@ export function Header() {
         {/* Right Side */}
         <div className="flex items-center space-x-4">
           {/* Search Button */}
-          <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+          <Link href="/search" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
             <Search className="h-5 w-5 text-gray-600" />
-          </button>
+          </Link>
 
           {/* Auth Status */}
           <AuthStatus />

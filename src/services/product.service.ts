@@ -1,63 +1,43 @@
 ﻿// src/services/product.service.ts
-import { db } from "@/lib/db";
-import type { Prisma } from "@prisma/client";
+import { db } from "@/lib/db"
+import type { Prisma } from "@prisma/client"
 
-// Type for product create input
 type ProductCreateInput = {
-  name: string;
-  slug: string;
-  description?: string;
-  shortDescription?: string;
-  price?: number;
-  currency?: string;
-  brandId?: string;
-  categoryId?: string;
-  nicheId?: string;
-  specifications?: Prisma.InputJsonValue;
-  features?: Prisma.InputJsonValue;
-  images?: string[];
-  bestFor?: string;
-  availability?: string;
-};
+  name: string
+  slug: string
+  description?: string
+  shortDescription?: string
+  price?: number
+  currency?: string
+  brandId?: string
+  categoryId?: string
+  nicheId?: string
+  specifications?: Prisma.InputJsonValue
+  features?: Prisma.InputJsonValue
+  images?: string[]
+  bestFor?: string
+  availability?: string
+}
 
-// Type for product update input
-type ProductUpdateInput = Partial<{
-  name: string;
-  slug: string;
-  description: string;
-  shortDescription: string;
-  price: number;
-  currency: string;
-  brandId: string;
-  categoryId: string;
-  nicheId: string;
-  specifications: Prisma.InputJsonValue;
-  features: Prisma.InputJsonValue;
-  images: string[];
-  bestFor: string;
-  availability: string;
-  rating: number;
-  reviewCount: number;
-  featured: boolean;
-  isActive: boolean;
-}>;
+type ProductUpdateInput = Partial<ProductCreateInput>
 
-// Type for getAll params
 type GetAllParams = {
-  categoryId?: string;
-  brandId?: string;
-  nicheId?: string;
-  search?: string;
-  isActive?: boolean;
-  featured?: boolean;
-  limit?: number;
-  offset?: number;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
-};
+  categoryId?: string
+  brandId?: string
+  nicheId?: string
+  search?: string
+  isActive?: boolean
+  featured?: boolean
+  minPrice?: number
+  maxPrice?: number
+  limit?: number
+  offset?: number
+  sortBy?: string
+  sortOrder?: "asc" | "desc"
+}
 
 export const productService = {
-  // Get all products with optional filtering
+  // Get all products with filtering
   async getAll(params: GetAllParams = {}) {
     const {
       categoryId,
@@ -66,24 +46,32 @@ export const productService = {
       search,
       isActive = true,
       featured,
+      minPrice,
+      maxPrice,
       limit = 20,
       offset = 0,
       sortBy = "createdAt",
       sortOrder = "desc",
-    } = params;
+    } = params
 
-    const where: Prisma.ProductWhereInput = { isActive };
+    const where: Prisma.ProductWhereInput = { isActive }
 
-    if (categoryId) where.categoryId = categoryId;
-    if (brandId) where.brandId = brandId;
-    if (nicheId) where.nicheId = nicheId;
-    if (featured !== undefined) where.featured = featured;
+    if (categoryId) where.categoryId = categoryId
+    if (brandId) where.brandId = brandId
+    if (nicheId) where.nicheId = nicheId
+    if (featured !== undefined) where.featured = featured
+    if (minPrice !== undefined) {
+      where.price = { ...where.price, gte: minPrice }
+    }
+    if (maxPrice !== undefined) {
+      where.price = { ...where.price, lte: maxPrice }
+    }
     if (search) {
       where.OR = [
         { name: { contains: search, mode: "insensitive" } },
         { description: { contains: search, mode: "insensitive" } },
         { shortDescription: { contains: search, mode: "insensitive" } },
-      ];
+      ]
     }
 
     const [data, total] = await Promise.all([
@@ -99,7 +87,7 @@ export const productService = {
         take: limit,
       }),
       db.product.count({ where }),
-    ]);
+    ])
 
     return {
       data,
@@ -107,7 +95,7 @@ export const productService = {
       page: Math.floor(offset / limit) + 1,
       limit,
       totalPages: Math.ceil(total / limit),
-    };
+    }
   },
 
   // Get a product by slug
@@ -127,7 +115,7 @@ export const productService = {
           orderBy: { createdAt: "desc" },
         },
       },
-    });
+    })
   },
 
   // Get a product by ID
@@ -143,7 +131,7 @@ export const productService = {
           orderBy: { priority: "desc" },
         },
       },
-    });
+    })
   },
 
   // Create a new product
@@ -165,7 +153,7 @@ export const productService = {
         bestFor: data.bestFor,
         availability: data.availability || "IN_STOCK",
       },
-    });
+    })
   },
 
   // Update a product
@@ -173,7 +161,7 @@ export const productService = {
     return db.product.update({
       where: { id },
       data,
-    });
+    })
   },
 
   // Delete a product (soft delete)
@@ -181,7 +169,7 @@ export const productService = {
     return db.product.update({
       where: { id },
       data: { isActive: false },
-    });
+    })
   },
 
   // Get popular products
@@ -194,7 +182,7 @@ export const productService = {
         brand: true,
         category: true,
       },
-    });
+    })
   },
 
   // Get featured products
@@ -207,13 +195,13 @@ export const productService = {
         brand: true,
         category: true,
       },
-    });
+    })
   },
 
   // Search products
   async search(query: string, limit: number = 10) {
     if (!query || query.length < 2) {
-      return [];
+      return []
     }
 
     return db.product.findMany({
@@ -232,6 +220,6 @@ export const productService = {
         category: true,
       },
       take: limit,
-    });
+    })
   },
-};
+}

@@ -11,7 +11,8 @@
     "db:push": "prisma db push",
     "db:pull": "prisma db pull",
     "db:studio": "prisma studio",
-    "db:migrate": "prisma migrate dev"
+    "db:migrate": "prisma migrate dev",
+    "seed": "npx tsx prisma/seed.ts"
   },
   "dependencies": {
     "@auth/core": "^0.41.3",

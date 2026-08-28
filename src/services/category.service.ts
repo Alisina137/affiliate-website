@@ -1,112 +1,103 @@
 ﻿// src/services/category.service.ts
 import { db } from "@/lib/db"
-import type { Category } from "@prisma/client"
+import { productService } from "./product.service"
 
 export const categoryService = {
-  // Get all categories for a niche
-  async getByNiche(nicheSlug: string): Promise<Category[]> {
+  // Get all categories
+  async getAll() {
     return db.category.findMany({
-      where: {
-        niche: { slug: nicheSlug },
-        isActive: true,
-      },
-      orderBy: { order: "asc" },
+      where: { isActive: true },
+      orderBy: { name: "asc" },
       include: {
+        niche: true,
         children: {
           where: { isActive: true },
           orderBy: { order: "asc" },
         },
-      },
-    })
-  },
-
-  // Get root categories (no parent) for a niche
-  async getRootCategories(nicheId: string): Promise<Category[]> {
-    return db.category.findMany({
-      where: {
-        nicheId,
-        parentId: null,
-        isActive: true,
-      },
-      orderBy: { order: "asc" },
-      include: {
-        children: {
+        products: {
           where: { isActive: true },
-          orderBy: { order: "asc" },
+          take: 6,
+          include: {
+            brand: true,
+          },
         },
       },
     })
   },
 
   // Get a category by slug
-  async getBySlug(slug: string): Promise<Category | null> {
+  async getBySlug(slug: string) {
     return db.category.findUnique({
       where: { slug },
       include: {
+        niche: true,
         parent: true,
         children: {
           where: { isActive: true },
           orderBy: { order: "asc" },
         },
-        niche: true,
         products: {
           where: { isActive: true },
-        },
-        brands: {
-          where: { isActive: true },
+          include: {
+            brand: true,
+          },
         },
       },
     })
   },
 
-  // Get a category by ID
-  async getById(id: string): Promise<Category | null> {
-    return db.category.findUnique({
-      where: { id },
+  // Get products in a category with pagination and filters
+  async getProducts(
+    categoryId: string,
+    params?: {
+      brandId?: string
+      minPrice?: number
+      maxPrice?: number
+      sortBy?: string
+      sortOrder?: "asc" | "desc"
+      limit?: number
+      offset?: number
+    }
+  ) {
+    const {
+      brandId,
+      minPrice,
+      maxPrice,
+      sortBy = "createdAt",
+      sortOrder = "desc",
+      limit = 12,
+      offset = 0,
+    } = params || {}
+
+    return productService.getAll({
+      categoryId,
+      brandId,
+      minPrice,
+      maxPrice,
+      sortBy,
+      sortOrder,
+      limit,
+      offset,
+      isActive: true,
+    })
+  },
+
+  // Get brands in a category
+  async getBrands(categoryId: string) {
+    const products = await db.product.findMany({
+      where: {
+        categoryId,
+        isActive: true,
+        brandId: { not: null },
+      },
+      distinct: ["brandId"],
       include: {
-        parent: true,
-        children: true,
-        niche: true,
+        brand: true,
       },
     })
-  },
 
-  // Create a new category
-  async create(data: {
-    name: string
-    slug: string
-    nicheId: string
-    description?: string
-    image?: string
-    parentId?: string
-    order?: number
-  }): Promise<Category> {
-    return db.category.create({
-      data: {
-        name: data.name,
-        slug: data.slug,
-        nicheId: data.nicheId,
-        description: data.description,
-        image: data.image,
-        parentId: data.parentId,
-        order: data.order || 0,
-      },
-    })
-  },
-
-  // Update a category
-  async update(id: string, data: Partial<Pick<Category, "name" | "slug" | "description" | "image" | "order" | "isActive" | "parentId">>): Promise<Category> {
-    return db.category.update({
-      where: { id },
-      data,
-    })
-  },
-
-  // Delete a category (soft delete)
-  async delete(id: string): Promise<Category> {
-    return db.category.update({
-      where: { id },
-      data: { isActive: false },
-    })
+    return products
+      .map((p) => p.brand)
+      .filter((brand) => brand !== null)
   },
 }
