@@ -1,35 +1,74 @@
 ﻿// src/services/brand.service.ts
 import { db } from "@/lib/db"
-import type { Brand } from "@prisma/client"
 
 export const brandService = {
   // Get all brands
-  async getAll(): Promise<Brand[]> {
-    return db.brand.findMany({
-      where: { isActive: true },
-      orderBy: { name: "asc" },
-    })
-  },
+  async getAll(params?: {
+    nicheId?: string
+    isActive?: boolean
+    search?: string
+    limit?: number
+    offset?: number
+  }) {
+    const {
+      nicheId,
+      isActive = true,
+      search,
+      limit = 20,
+      offset = 0,
+    } = params || {}
 
-  // Get brands by niche
-  async getByNiche(nicheSlug: string): Promise<Brand[]> {
-    return db.brand.findMany({
-      where: {
-        niche: { slug: nicheSlug },
-        isActive: true,
-      },
-      orderBy: { name: "asc" },
-    })
+    const where: any = { isActive }
+
+    if (nicheId) where.nicheId = nicheId
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
+      ]
+    }
+
+    const [data, total] = await Promise.all([
+      db.brand.findMany({
+        where,
+        include: {
+          niche: true,
+          _count: {
+            select: { products: true },
+          },
+        },
+        orderBy: { name: "asc" },
+        skip: offset,
+        take: limit,
+      }),
+      db.brand.count({ where }),
+    ])
+
+    return {
+      data,
+      total,
+      page: Math.floor(offset / limit) + 1,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    }
   },
 
   // Get a brand by slug
-  async getBySlug(slug: string): Promise<Brand | null> {
+  async getBySlug(slug: string) {
     return db.brand.findUnique({
-      where: { slug },
+      where: { slug, isActive: true },
       include: {
         niche: true,
         products: {
           where: { isActive: true },
+          include: {
+            category: true,
+            affiliateLinks: {
+              where: { isActive: true },
+              orderBy: { priority: "desc" },
+            },
+          },
+          orderBy: { name: "asc" },
         },
         categories: {
           where: { isActive: true },
@@ -39,50 +78,98 @@ export const brandService = {
   },
 
   // Get a brand by ID
-  async getById(id: string): Promise<Brand | null> {
+  async getById(id: string) {
     return db.brand.findUnique({
       where: { id },
-    })
-  },
-
-  // Create a new brand
-  async create(data: {
-    name: string
-    slug: string
-    description?: string
-    logo?: string
-    website?: string
-    foundedYear?: number
-    headquarters?: string
-    nicheId?: string
-  }): Promise<Brand> {
-    return db.brand.create({
-      data: {
-        name: data.name,
-        slug: data.slug,
-        description: data.description,
-        logo: data.logo,
-        website: data.website,
-        foundedYear: data.foundedYear,
-        headquarters: data.headquarters,
-        nicheId: data.nicheId,
+      include: {
+        niche: true,
+        products: {
+          where: { isActive: true },
+          take: 10,
+        },
       },
     })
   },
 
-  // Update a brand
-  async update(id: string, data: Partial<Pick<Brand, "name" | "slug" | "description" | "logo" | "website" | "foundedYear" | "headquarters" | "isActive" | "nicheId">>): Promise<Brand> {
-    return db.brand.update({
-      where: { id },
-      data,
-    })
+  // Get products by brand
+  async getProducts(brandId: string, params?: {
+    limit?: number
+    offset?: number
+    sortBy?: string
+    sortOrder?: "asc" | "desc"
+  }) {
+    const {
+      limit = 12,
+      offset = 0,
+      sortBy = "createdAt",
+      sortOrder = "desc",
+    } = params || {}
+
+    const [products, total] = await Promise.all([
+      db.product.findMany({
+        where: {
+          brandId,
+          isActive: true,
+        },
+        include: {
+          category: true,
+          affiliateLinks: {
+            where: { isActive: true },
+            orderBy: { priority: "desc" },
+          },
+        },
+        orderBy: { [sortBy]: sortOrder },
+        skip: offset,
+        take: limit,
+      }),
+      db.product.count({
+        where: { brandId, isActive: true },
+      }),
+    ])
+
+    return {
+      products,
+      total,
+      page: Math.floor(offset / limit) + 1,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    }
   },
 
-  // Delete a brand (soft delete)
-  async delete(id: string): Promise<Brand> {
-    return db.brand.update({
-      where: { id },
-      data: { isActive: false },
+  // Get brand statistics
+  async getStats(brandId: string) {
+    const [products, categories, reviews] = await Promise.all([
+      db.product.count({
+        where: { brandId, isActive: true },
+      }),
+      db.category.count({
+        where: {
+          products: {
+            some: { brandId, isActive: true },
+          },
+        },
+      }),
+      db.review.count({
+        where: {
+          product: {
+            brandId,
+            isActive: true,
+          },
+          status: "PUBLISHED",
+        },
+      }),
+    ])
+
+    const avgRating = await db.product.aggregate({
+      where: { brandId, isActive: true },
+      _avg: { rating: true },
     })
+
+    return {
+      productCount: products,
+      categoryCount: categories,
+      reviewCount: reviews,
+      averageRating: avgRating._avg.rating || 0,
+    }
   },
 }
