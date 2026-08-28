@@ -113,6 +113,10 @@ export const bestOfService = {
               include: {
                 brand: true,
                 category: true,
+                affiliateLinks: {
+                  where: { isActive: true },
+                  orderBy: { priority: "desc" },
+                },
               },
             },
           },
