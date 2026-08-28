@@ -1,4 +1,5 @@
 ﻿// src/types/affiliate.ts
+
 import type {
   AffiliateLink,
   AffiliateProgram,
@@ -6,45 +7,51 @@ import type {
   AffiliateClick,
   Product,
   User,
-} from "@prisma/client"
+} from "@prisma/client";
 
 // ============================================
 // AFFILIATE LINK TYPES
 // ============================================
 
 export type AffiliateLinkWithRelations = AffiliateLink & {
-  product?: Product
-  merchant?: AffiliateMerchantWithRelations
-}
+  product?: Product | null;
+  merchant?: AffiliateMerchantWithRelations | null;
+};
 
 export type AffiliateLinkWithProduct = AffiliateLink & {
-  product: Product
-}
+  product: Product;
+};
 
 export interface AffiliateLinkListItem {
-  id: string
-  url: string
-  label: string
-  merchant: string
-  country: string
-  priority: number
-  clicks: number
-  isActive: boolean
+  id: string;
+  url: string;
+  label: string;
+  merchant: string;
+  merchantId: string | null;
+  trackingUrl: string | null;
+  country: string;
+  priority: number;
+  clicks: number;
+  lastClicked: Date | null;
+  isActive: boolean;
+
   product: {
-    id: string
-    name: string
-    slug: string
-    price: number | null
-  }
+    id: string;
+    name: string;
+    slug: string;
+    price: number | null;
+  };
+
   merchantDetails?: {
-    id: string
-    name: string
-    slug: string
+    id: string;
+    name: string;
+    slug: string;
     program?: {
-      id: string
-      name: string
-    }
-  }
+      id: string;
+      name: string;
+      slug: string;
+    };
+  } | null;
 }
 
 // ============================================
@@ -52,20 +59,20 @@ export interface AffiliateLinkListItem {
 // ============================================
 
 export type AffiliateProgramWithRelations = AffiliateProgram & {
-  merchants: AffiliateMerchant[]
-}
+  merchants: AffiliateMerchant[];
+};
 
 export interface AffiliateProgramListItem {
-  id: string
-  name: string
-  slug: string
-  description: string | null
-  logo: string | null
-  website: string | null
-  commission: string | null
-  cookieDuration: number | null
-  merchantCount: number
-  isActive: boolean
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  logo: string | null;
+  website: string | null;
+  commission: string | null;
+  cookieDuration: number | null;
+  merchantCount: number;
+  isActive: boolean;
 }
 
 // ============================================
@@ -73,22 +80,24 @@ export interface AffiliateProgramListItem {
 // ============================================
 
 export type AffiliateMerchantWithRelations = AffiliateMerchant & {
-  program: AffiliateProgram
-}
+  program: AffiliateProgram;
+};
 
 export interface AffiliateMerchantListItem {
-  id: string
-  name: string
-  slug: string
-  description: string | null
-  logo: string | null
-  website: string | null
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  logo: string | null;
+  website: string | null;
+
   program: {
-    id: string
-    name: string
-    slug: string
-  }
-  isActive: boolean
+    id: string;
+    name: string;
+    slug: string;
+  };
+
+  isActive: boolean;
 }
 
 // ============================================
@@ -96,24 +105,32 @@ export interface AffiliateMerchantListItem {
 // ============================================
 
 export type AffiliateClickWithRelations = AffiliateClick & {
-  affiliateLink: AffiliateLink
-  product?: Product | null
-  user?: Pick<User, "id" | "name" | "email"> | null
-}
+  affiliateLink: AffiliateLink;
+  product?: Product | null;
+  user?: Pick<User, "id" | "name" | "email"> | null;
+};
 
 export interface AffiliateClickStats {
-  totalClicks: number
-  convertedClicks: number
-  conversionRate: number
-  byCountry: { country: string; count: number }[]
-  byDevice: { device: string; count: number }[]
+  totalClicks: number;
+  convertedClicks: number;
+  conversionRate: number;
+
+  byCountry: {
+    country: string;
+    count: number;
+  }[];
+
+  byDevice: {
+    device: string;
+    count: number;
+  }[];
 }
 
 export interface AffiliateDailyStats {
-  date: string
-  clicks: number
-  conversions: number
-  value: number
+  date: string;
+  clicks: number;
+  conversions: number;
+  value: number;
 }
 
 // ============================================
@@ -121,19 +138,21 @@ export interface AffiliateDailyStats {
 // ============================================
 
 export interface AffiliatePerformanceMetrics {
-  totalClicks: number
-  totalConversions: number
-  conversionRate: number
-  totalRevenue: number
-  averageOrderValue: number
-  topPerformingLinks: AffiliateLinkListItem[]
+  totalClicks: number;
+  totalConversions: number;
+  conversionRate: number;
+  totalRevenue: number;
+  averageOrderValue: number;
+
+  topPerformingLinks: AffiliateLinkListItem[];
+
   topPerformingProducts: {
-    productId: string
-    productName: string
-    clicks: number
-    conversions: number
-    revenue: number
-  }[]
+    productId: string;
+    productName: string;
+    clicks: number;
+    conversions: number;
+    revenue: number;
+  }[];
 }
 
 // ============================================
@@ -153,6 +172,6 @@ export const countryCodes = [
   { code: "BR", name: "Brazil" },
   { code: "IN", name: "India" },
   { code: "CN", name: "China" },
-] as const
+] as const;
 
-export type CountryCode = typeof countryCodes[number]["code"]
+export type CountryCode = (typeof countryCodes)[number]["code"];

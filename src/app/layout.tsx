@@ -7,8 +7,9 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Affiliate Platform",
-  description: "Find the best products for your needs",
+  title: "Affiliate Platform - Find the Best Products",
+  description: "Discover reviews, comparisons, and buying guides for products across all categories.",
+  keywords: "product reviews, comparisons, buying guides, affiliate, best products",
 }
 
 export default function RootLayout({

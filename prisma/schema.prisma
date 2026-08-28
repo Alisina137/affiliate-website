@@ -629,3 +629,15 @@ enum Role {
   EDITOR
   USER
 }
+
+model Subscriber {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String?
+  isActive  Boolean   @default(true)
+  source    String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("subscribers")
+}
