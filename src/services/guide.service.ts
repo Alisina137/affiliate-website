@@ -111,6 +111,10 @@ export const guideService = {
               include: {
                 brand: true,
                 category: true,
+                affiliateLinks: {
+                  where: { isActive: true },
+                  orderBy: { priority: "desc" },
+                },
               },
             },
           },
