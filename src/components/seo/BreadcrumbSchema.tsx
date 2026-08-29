@@ -1,4 +1,6 @@
 ﻿// src/components/seo/BreadcrumbSchema.tsx
+import { Schema } from "./Schema"
+
 interface BreadcrumbItem {
   name: string
   url: string
@@ -20,10 +22,5 @@ export function BreadcrumbSchema({ items }: BreadcrumbSchemaProps) {
     })),
   }
 
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-    />
-  )
+  return <Schema data={schema} />
 }

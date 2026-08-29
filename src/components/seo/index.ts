@@ -1,4 +1,13 @@
 ﻿// src/components/seo/index.ts
+export { Schema } from "./Schema"
+export { ProductSchema } from "./ProductSchema"
+export { ReviewSchema } from "./ReviewSchema"
+export { FAQSchema } from "./FAQSchema"
 export { BreadcrumbSchema } from "./BreadcrumbSchema"
+export { ArticleSchema } from "./ArticleSchema"
 export { OrganizationSchema } from "./OrganizationSchema"
 export { WebPageSchema } from "./WebPageSchema"
+export { ComparisonSchema } from "./ComparisonSchema"
+export { generateMetadata } from "./Metadata"
+export { SocialMetaTags, generateSocialMetadata } from "./SocialMeta"
+export { SEOHead, generateSEOHead } from "./SEOHead"
