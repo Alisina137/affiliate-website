@@ -1,5 +1,5 @@
 ﻿// src/config/index.ts
-import { environment } from "./environment"
+import { environment } from "./environment";
 
 export const config = {
   app: {
@@ -42,6 +42,6 @@ export const config = {
   isDevelopment: environment.isDevelopment,
   isProduction: environment.isProduction,
   isTest: environment.isTest,
-}
+};
 
-export type Config = typeof config
+export type Config = typeof config;

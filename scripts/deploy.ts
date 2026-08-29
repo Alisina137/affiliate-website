@@ -1,7 +1,6 @@
 ﻿// scripts/deploy.ts
 import { exec } from "child_process"
 import { promisify } from "util"
-import fs from "fs"
 
 const execAsync = promisify(exec)
 
