@@ -48,7 +48,7 @@ export async function PUT(
     const { merchants, ...programData } = result.data
 
     // Update program
-    const program = await db.affiliateProgram.update({
+    await db.affiliateProgram.update({
       where: { id: params.id },
       data: programData,
     })
@@ -118,7 +118,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: Request,
+  _request: Request,
   { params }: { params: { id: string } }
 ) {
   try {

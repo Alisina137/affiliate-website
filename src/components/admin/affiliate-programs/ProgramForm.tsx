@@ -3,7 +3,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Save, X, Loader2, Plus, Trash2 } from "lucide-react"
+import { Save, X, Loader2, Plus, Trash2, Edit } from "lucide-react"
 
 interface Merchant {
   id?: string
@@ -43,7 +43,7 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
     logo: initialData?.logo || "",
     website: initialData?.website || "",
     commission: initialData?.commission || "",
-    cookieDuration: initialData?.cookieDuration || "",
+    cookieDuration: initialData?.cookieDuration?.toString() || "",
     isActive: initialData?.isActive ?? true,
   })
 
@@ -76,7 +76,7 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
     }
     if (editingMerchant.id) {
       // Update existing
-      setMerchants(merchants.map(m => 
+      setMerchants(merchants.map(m =>
         m.id === editingMerchant.id ? merchantToAdd : m
       ))
     } else {
@@ -110,7 +110,7 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          cookieDuration: formData.cookieDuration ? parseInt(formData.cookieDuration) : null,
+          cookieDuration: formData.cookieDuration ? parseInt(formData.cookieDuration.toString()) : null,
           merchants: merchants.map(m => ({
             ...m,
             id: m.id || undefined,
@@ -261,7 +261,7 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
       {/* Merchants Section */}
       <div className="pt-4 border-t">
         <h3 className="text-lg font-semibold mb-4">Merchants</h3>
-        
+
         {/* Merchant List */}
         {merchants.length > 0 && (
           <div className="space-y-2 mb-4">

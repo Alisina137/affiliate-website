@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { db } from "@/lib/db"
-import { Plus, Search, Edit, Trash2, Link2, ExternalLink } from "lucide-react"
+import { Plus, Search, Edit, Trash2, ExternalLink } from "lucide-react"
 
 export default async function AdminAffiliateLinksPage({
   searchParams,

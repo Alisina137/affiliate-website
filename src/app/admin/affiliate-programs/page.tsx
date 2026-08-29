@@ -34,11 +34,6 @@ export default async function AdminAffiliateProgramsPage({
       include: {
         merchants: {
           where: { isActive: true },
-          include: {
-            _count: {
-              select: { affiliateLinks: true },
-            },
-          },
         },
       },
       orderBy: { name: "asc" },
@@ -116,7 +111,7 @@ export default async function AdminAffiliateProgramsPage({
                   <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
                     <span className="flex items-center gap-1">
                       <Users className="h-4 w-4" />
-                      {program.merchants.length} merchants
+                      {program.merchants?.length || 0} merchants
                     </span>
                     {program.commission && (
                       <span>Commission: {program.commission}</span>
@@ -142,7 +137,7 @@ export default async function AdminAffiliateProgramsPage({
                   </button>
                 </div>
               </div>
-              {program.merchants.length > 0 && (
+              {program.merchants && program.merchants.length > 0 && (
                 <div className="mt-3 pt-3 border-t">
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Merchants
@@ -154,9 +149,6 @@ export default async function AdminAffiliateProgramsPage({
                         className="inline-flex items-center gap-1 px-2 py-0.5 text-xs bg-gray-100 rounded-full"
                       >
                         {merchant.name}
-                        <span className="text-gray-400">
-                          ({merchant._count.affiliateLinks})
-                        </span>
                       </span>
                     ))}
                     {program.merchants.length > 5 && (
