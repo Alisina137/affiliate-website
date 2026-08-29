@@ -1,17 +1,16 @@
 ﻿// src/lib/auth/index.ts
-import NextAuth from "next-auth";
-import Credentials from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { compare } from "bcryptjs";
-import { db } from "@/lib/db";
-import type { NextAuthConfig } from "next-auth";
+import NextAuth from "next-auth"
+import Credentials from "next-auth/providers/credentials"
+import { PrismaAdapter } from "@auth/prisma-adapter"
+import { compare } from "bcryptjs"
+import { db } from "@/lib/db"
+import type { NextAuthConfig } from "next-auth"
 
 export const authConfig = {
   adapter: PrismaAdapter(db),
   session: { strategy: "jwt" },
   pages: {
     signIn: "/login",
-    newUser: "/register", // Changed from signUp to newUser
     error: "/auth/error",
   },
   providers: [
@@ -23,24 +22,24 @@ export const authConfig = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null;
+          return null
         }
 
         const user = await db.user.findUnique({
           where: { email: credentials.email as string },
-        });
+        })
 
         if (!user || !user.password) {
-          return null;
+          return null
         }
 
         const isValid = await compare(
           credentials.password as string,
-          user.password,
-        );
+          user.password
+        )
 
         if (!isValid) {
-          return null;
+          return null
         }
 
         return {
@@ -49,33 +48,33 @@ export const authConfig = {
           name: user.name,
           image: user.image,
           role: user.role,
-        };
+        }
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.role = user.role;
-        token.email = user.email;
-        token.name = user.name;
-        token.image = user.image;
+        token.id = user.id
+        token.role = user.role
+        token.email = user.email
+        token.name = user.name
+        token.image = user.image
       }
-      return token;
+      return token
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as string;
-        session.user.email = token.email as string;
-        session.user.name = token.name as string;
-        session.user.image = token.image as string;
+        session.user.id = token.id as string
+        session.user.role = token.role as "ADMIN" | "EDITOR" | "USER"
+        session.user.email = token.email as string
+        session.user.name = token.name as string
+        session.user.image = token.image as string
       }
-      return session;
+      return session
     },
   },
   trustHost: true,
-} satisfies NextAuthConfig;
+} satisfies NextAuthConfig
 
-export const { handlers, auth, signIn, signOut } = NextAuth(authConfig);
+export const { handlers, auth, signIn, signOut } = NextAuth(authConfig)
