@@ -124,3 +124,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
     </div>
   )
 }
+// src/app/products/[slug]/page.tsx (update the page)
+
+// Add revalidation
+export const revalidate = 3600 // Revalidate every hour
+export const dynamic = "force-static" // Force static generation
+
+// For dynamic content that needs fresh data:
+// export const dynamic = "auto" // Auto-detect
