@@ -12,7 +12,8 @@
     "db:pull": "prisma db pull",
     "db:studio": "prisma studio",
     "db:migrate": "prisma migrate dev",
-    "seed": "npx tsx prisma/seed.ts"
+    "seed": "npx tsx prisma/seed.ts",
+    "validate:env": "npx tsx scripts/validate-env.ts"
   },
   "dependencies": {
     "@auth/core": "^0.41.3",

@@ -18,3 +18,28 @@ export function validateEnv(): Env {
 }
 
 export const env = validateEnv()
+
+// Helper functions
+export function isDevelopment(): boolean {
+  return env.NODE_ENV === "development"
+}
+
+export function isProduction(): boolean {
+  return env.NODE_ENV === "production"
+}
+
+export function isTest(): boolean {
+  return env.NODE_ENV === "test"
+}
+
+export function getEnv(key: keyof Env): string {
+  const value = env[key]
+  if (!value) {
+    throw new Error(`Missing environment variable: ${key}`)
+  }
+  return value as string
+}
+
+export function getOptionalEnv<T extends keyof Env>(key: T): Env[T] | undefined {
+  return env[key]
+}

@@ -11,6 +11,22 @@ export const envSchema = z.object({
 
   // App
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  NEXT_PUBLIC_SITE_URL: z.string().url().optional(),
+
+  // Optional: API Keys
+  OPENAI_API_KEY: z.string().optional(),
+  ANTHROPIC_API_KEY: z.string().optional(),
+
+  // Optional: Analytics
+  NEXT_PUBLIC_GA_MEASUREMENT_ID: z.string().optional(),
+  NEXT_PUBLIC_PLAUSIBLE_DOMAIN: z.string().optional(),
+
+  // Optional: Email (for production)
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.string().optional(),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  EMAIL_FROM: z.string().email().optional(),
 })
 
 export type Env = z.infer<typeof envSchema>

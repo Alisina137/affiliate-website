@@ -1,38 +1,32 @@
 ﻿// src/app/api/contact/route.ts
 import { NextResponse } from "next/server"
-import { z } from "zod"
-
-const contactSchema = z.object({
-  name: z.string().min(2, "Name is required"),
-  email: z.string().email("Valid email is required"),
-  subject: z.string().min(2, "Subject is required"),
-  message: z.string().min(10, "Message must be at least 10 characters"),
-})
+import { validateAndRespond } from "@/lib/validation/middleware"
+import { contactSchema } from "@/lib/validation/schemas"
+import { sanitizeObject } from "@/lib/validation/sanitize"
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const result = contactSchema.safeParse(body)
-
-    if (!result.success) {
-      return NextResponse.json(
-        { error: "Invalid input", details: result.error.issues },
-        { status: 400 }
-      )
+    
+    // Validate and sanitize
+    const validation = validateAndRespond(contactSchema, body, { sanitize: true })
+    
+    if (!validation.success) {
+      return validation.response
     }
 
-    const { name, email, subject, message } = result.data
+    const { name, email, subject, message } = validation.data
+
+    // Sanitize message content
+    const sanitizedMessage = sanitizeObject({ message }, { html: true }).message
 
     // TODO: Send email notification
-    // For now, just log it
     console.log(`Contact Form Submission:
       Name: ${name}
       Email: ${email}
       Subject: ${subject}
-      Message: ${message}
+      Message: ${sanitizedMessage}
     `)
-
-    // TODO: Store in database or send to email service
 
     return NextResponse.json(
       { success: true, message: "Message sent successfully" },
