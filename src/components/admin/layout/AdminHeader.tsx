@@ -2,7 +2,7 @@
 "use client"
 
 import { useSession, signOut } from "next-auth/react"
-import { Bell, User, LogOut, Settings, ChevronDown } from "lucide-react"
+import { Bell, LogOut, ChevronDown } from "lucide-react"
 import { useState } from "react"
 
 export function AdminHeader() {

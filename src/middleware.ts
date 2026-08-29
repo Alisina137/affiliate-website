@@ -1,26 +1,20 @@
 ﻿// src/middleware.ts
-import { withAuth } from "next-auth/middleware"
 import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
+import { getToken } from "next-auth/jwt"
 
-export default withAuth(
-  function middleware(req) {
-    const token = req.nextauth.token
-    
-    // Check if user is admin for admin routes
-    if (req.nextUrl.pathname.startsWith("/admin")) {
-      if (!token || token.role !== "ADMIN") {
-        return NextResponse.redirect(new URL("/login", req.url))
-      }
+export async function middleware(req: NextRequest) {
+  const token = await getToken({ req })
+  
+  // Check if user is admin for admin routes
+  if (req.nextUrl.pathname.startsWith("/admin")) {
+    if (!token || token.role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/login", req.url))
     }
-
-    return NextResponse.next()
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => !!token,
-    },
   }
-)
+
+  return NextResponse.next()
+}
 
 export const config = {
   matcher: [

@@ -1,51 +1,28 @@
 ﻿// src/lib/auth/utils.ts
-import { auth } from "./index";
-import type { Session } from "next-auth";
+import { auth } from "./index"
+import type { Session } from "next-auth"
 
-// Define proper types
-export interface AppUser {
-  id: string;
-  email: string;
-  name?: string | null;
-  role: string;
-  image?: string | null;
+export async function getCurrentUser() {
+  const session = await auth()
+  return session?.user
 }
 
-// Extend Session with our AppUser type
-export interface AppSession extends Session {
-  user: AppUser & {
-    id: string;
-    role: string;
-  };
+export async function getSession() {
+  return await auth()
 }
 
-export async function getCurrentUser(): Promise<AppUser | undefined> {
-  const session = await auth();
-  return session?.user as AppUser | undefined;
+export function isAuthenticated(session: Session | null): boolean {
+  return !!session?.user
 }
 
-export async function getSession(): Promise<AppSession | null> {
-  const session = await auth();
-  return session as AppSession | null;
+export function hasRole(user: any, role: string): boolean {
+  return user?.role === role
 }
 
-export function isAuthenticated(
-  session: AppSession | null | undefined,
-): boolean {
-  return !!session?.user;
+export function isAdmin(user: any): boolean {
+  return hasRole(user, "ADMIN")
 }
 
-export function hasRole(
-  user: AppUser | null | undefined,
-  role: string,
-): boolean {
-  return user?.role === role;
-}
-
-export function isAdmin(user: AppUser | null | undefined): boolean {
-  return hasRole(user, "ADMIN");
-}
-
-export function isEditor(user: AppUser | null | undefined): boolean {
-  return hasRole(user, "EDITOR") || isAdmin(user);
+export function isEditor(user: any): boolean {
+  return hasRole(user, "EDITOR") || isAdmin(user)
 }
