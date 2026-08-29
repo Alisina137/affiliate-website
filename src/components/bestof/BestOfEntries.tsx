@@ -3,7 +3,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Star, Check, X, ShoppingCart, Award, ChevronDown, ChevronUp, ExternalLink } from "lucide-react"
+import { Star, Check, X, ShoppingCart, ChevronDown, ChevronUp, ExternalLink } from "lucide-react"
 
 interface Product {
   id: string
@@ -80,7 +80,7 @@ export function BestOfEntries({ entries }: BestOfEntriesProps) {
           <div key={entry.id} className="bg-white rounded-lg shadow-sm border overflow-hidden">
             {/* Entry Header */}
             <div className="p-6 flex flex-col md:flex-row md:items-center gap-4">
-              <div className={`flex items-center justify-center w-12 h-12 rounded-full ${medal.bg} flex-shrink-0`}>
+              <div className={`flex items-center justify-center w-12 h-12 rounded-full ${medal.bg} shrink-0`}>
                 <span className={`text-xl font-bold ${medal.color}`}>{medal.emoji}</span>
               </div>
               
@@ -152,7 +152,7 @@ export function BestOfEntries({ entries }: BestOfEntriesProps) {
                       <ul className="space-y-1">
                         {entry.pros.map((pro, i) => (
                           <li key={i} className="flex items-start gap-2 text-sm text-green-600">
-                            <Check className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
+                            <Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
                             {pro}
                           </li>
                         ))}
@@ -167,7 +167,7 @@ export function BestOfEntries({ entries }: BestOfEntriesProps) {
                       <ul className="space-y-1">
                         {entry.cons.map((con, i) => (
                           <li key={i} className="flex items-start gap-2 text-sm text-red-600">
-                            <X className="h-4 w-4 text-red-500 flex-shrink-0 mt-0.5" />
+                            <X className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
                             {con}
                           </li>
                         ))}

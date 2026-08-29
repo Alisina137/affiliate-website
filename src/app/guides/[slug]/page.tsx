@@ -40,6 +40,21 @@ export default async function GuidePage({ params }: GuidePageProps) {
   // Get recommended products
   const recommendedProducts = guide.guideProducts.map((gp) => gp.product)
 
+  // Transform guide data for GuideContent with proper typing
+  const guideForContent = {
+    id: guide.id,
+    content: guide.content,
+    tableOfContents: typeof guide.tableOfContents === 'string' 
+      ? guide.tableOfContents 
+      : guide.tableOfContents ? JSON.stringify(guide.tableOfContents) : null,
+    guideProducts: guide.guideProducts.map((gp: any) => ({
+      id: gp.id,
+      context: gp.context,
+      order: gp.order,
+      product: gp.product,
+    })),
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
@@ -67,7 +82,7 @@ export default async function GuidePage({ params }: GuidePageProps) {
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
           <div className="lg:col-span-2">
-            <GuideContent guide={guide} />
+            <GuideContent guide={guideForContent} />
           </div>
           <div className="lg:col-span-1">
             <GuideSidebar

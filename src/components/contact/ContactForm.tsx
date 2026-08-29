@@ -55,7 +55,7 @@ export function ContactForm() {
         <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
         <h3 className="text-xl font-semibold text-green-700 mb-2">Message Sent!</h3>
         <p className="text-gray-500">
-          Thank you for reaching out. We'll get back to you within 24-48 hours.
+          Thank you for reaching out. We&apos;ll get back to you within 24-48 hours.
         </p>
         <button
           onClick={() => setStatus("idle")}
@@ -142,7 +142,7 @@ export function ContactForm() {
 
       {status === "error" && (
         <div className="flex items-center gap-2 text-red-600 bg-red-50 p-3 rounded-md">
-          <AlertCircle className="h-5 w-5 flex-shrink-0" />
+          <AlertCircle className="h-5 w-5 shrink-0" />
           <span>{errorMessage}</span>
         </div>
       )}

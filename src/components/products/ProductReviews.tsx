@@ -21,10 +21,9 @@ interface Review {
 
 interface ProductReviewsProps {
   reviews: Review[]
-  productName: string
 }
 
-export function ProductReviews({ reviews, productName }: ProductReviewsProps) {
+export function ProductReviews({ reviews }: ProductReviewsProps) {
   if (!reviews || reviews.length === 0) {
     return null
   }

@@ -28,7 +28,7 @@ interface BestOfHeaderProps {
 
 export function BestOfHeader({ bestOf }: BestOfHeaderProps) {
   return (
-    <div className="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-2xl border-2 border-yellow-200 p-8">
+    <div className="bg-linear-to-r from-yellow-50 to-amber-50 rounded-2xl border-2 border-yellow-200 p-8">
       <div className="flex items-center gap-3 mb-4">
         <div className="bg-yellow-400 p-2 rounded-lg">
           <Star className="h-6 w-6 text-white" />

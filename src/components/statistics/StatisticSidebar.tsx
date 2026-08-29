@@ -1,19 +1,19 @@
 ﻿// src/components/statistics/StatisticSidebar.tsx
-import Link from "next/link"
-import { Download, FileText, Link2, Share2, BarChart3, Calendar, CheckCircle } from "lucide-react"
+import Link from "next/link";
+import { Download, BarChart3 } from "lucide-react";
 
 interface StatisticSidebarProps {
   statistic: {
-    id: string
-    title: string
-    sources: string[]
-    publishedAt?: Date | null
+    id: string;
+    title: string;
+    sources: string[];
+    publishedAt?: Date | null;
     niche?: {
-      id: string
-      name: string
-      slug: string
-    } | null
-  }
+      id: string;
+      name: string;
+      slug: string;
+    } | null;
+  };
 }
 
 export function StatisticSidebar({ statistic }: StatisticSidebarProps) {
@@ -26,10 +26,9 @@ export function StatisticSidebar({ statistic }: StatisticSidebarProps) {
           <div className="flex justify-between items-center border-b pb-2">
             <span className="text-gray-500">Published</span>
             <span className="font-medium">
-              {statistic.publishedAt 
+              {statistic.publishedAt
                 ? new Date(statistic.publishedAt).toLocaleDateString()
-                : "Not published"
-              }
+                : "Not published"}
             </span>
           </div>
           <div className="flex justify-between items-center border-b pb-2">
@@ -84,5 +83,5 @@ export function StatisticSidebar({ statistic }: StatisticSidebarProps) {
         </div>
       )}
     </div>
-  )
+  );
 }

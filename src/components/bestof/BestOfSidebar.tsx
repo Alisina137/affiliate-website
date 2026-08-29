@@ -1,41 +1,40 @@
 ﻿// src/components/bestof/BestOfSidebar.tsx
-import Link from "next/link"
-import { Award, TrendingUp, Clock, ShoppingCart, Star } from "lucide-react"
+import Link from "next/link";
+import { Award, TrendingUp, Clock, ShoppingCart, Star } from "lucide-react";
 
 interface Entry {
-  id: string
-  order: number
+  id: string;
+  order: number;
   product: {
-    id: string
-    name: string
-    slug: string
-    price?: number | null
-    currency: string
-    rating?: number | null
+    id: string;
+    name: string;
+    slug: string;
+    price?: number | null;
+    currency: string;
+    rating?: number | null;
     brand?: {
-      name: string
-      slug: string
-    } | null
-  }
+      name: string;
+      slug: string;
+    } | null;
+  };
 }
 
 interface BestOfSidebarProps {
-  entries: Entry[]
+  entries: Entry[];
   category?: {
-    id: string
-    name: string
-    slug: string
-  } | null
-  title: string
+    id: string;
+    name: string;
+    slug: string;
+  } | null;
 }
 
-export function BestOfSidebar({ entries, category, title }: BestOfSidebarProps) {
+export function BestOfSidebar({ entries, category }: BestOfSidebarProps) {
   const formatPrice = (price: number, currency: string = "USD") => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: currency,
-    }).format(price)
-  }
+    }).format(price);
+  };
 
   return (
     <div className="space-y-6">
@@ -47,20 +46,24 @@ export function BestOfSidebar({ entries, category, title }: BestOfSidebarProps) 
         </h3>
         <div className="space-y-3">
           {entries.map((entry, index) => {
-            const medals = ["🥇", "🥈", "🥉"]
+            const medals = ["🥇", "🥈", "🥉"];
             return (
               <Link
                 key={entry.id}
                 href={`/products/${entry.product.slug}`}
                 className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors group"
               >
-                <span className="text-lg">{medals[index] || `#${index + 1}`}</span>
+                <span className="text-lg">
+                  {medals[index] || `#${index + 1}`}
+                </span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium group-hover:text-blue-600 transition-colors line-clamp-1">
                     {entry.product.name}
                   </p>
                   {entry.product.brand && (
-                    <p className="text-xs text-gray-500">{entry.product.brand.name}</p>
+                    <p className="text-xs text-gray-500">
+                      {entry.product.brand.name}
+                    </p>
                   )}
                 </div>
                 {entry.product.price && (
@@ -69,7 +72,7 @@ export function BestOfSidebar({ entries, category, title }: BestOfSidebarProps) 
                   </span>
                 )}
               </Link>
-            )
+            );
           })}
         </div>
       </div>
@@ -111,5 +114,5 @@ export function BestOfSidebar({ entries, category, title }: BestOfSidebarProps) 
         </div>
       </div>
     </div>
-  )
+  );
 }

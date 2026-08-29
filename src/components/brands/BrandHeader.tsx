@@ -1,5 +1,6 @@
 ﻿// src/components/brands/BrandHeader.tsx
-import { Building2, Package, Star, Users, ExternalLink } from "lucide-react"
+import { Building2, Star, ExternalLink } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 
 interface BrandStats {
@@ -33,13 +34,17 @@ export function BrandHeader({ brand, stats }: BrandHeaderProps) {
     <div className="bg-white rounded-lg shadow-sm border p-6">
       <div className="flex flex-col md:flex-row md:items-center gap-6">
         {/* Logo */}
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           {brand.logo ? (
-            <img 
-              src={brand.logo} 
-              alt={brand.name} 
-              className="h-20 w-20 object-contain"
-            />
+            <div className="relative h-20 w-20">
+              <Image 
+                src={brand.logo} 
+                alt={brand.name} 
+                fill
+                className="object-contain"
+                sizes="80px"
+              />
+            </div>
           ) : (
             <div className="h-20 w-20 bg-gray-100 rounded-full flex items-center justify-center">
               <Building2 className="h-10 w-10 text-gray-400" />

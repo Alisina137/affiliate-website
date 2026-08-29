@@ -150,7 +150,7 @@ export function ProductSummary({ product }: ProductSummaryProps) {
           <ul className="space-y-2">
             {features.map((feature, index) => (
               <li key={index} className="flex items-start gap-2 text-sm">
-                <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
                 <span>{feature}</span>
               </li>
             ))}
@@ -167,7 +167,7 @@ export function ProductSummary({ product }: ProductSummaryProps) {
               <ul className="space-y-1">
                 {pros.map((pro, index) => (
                   <li key={index} className="flex items-start gap-2 text-sm text-green-700">
-                    <Check className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
+                    <Check className="h-4 w-4 text-green-500 shrink-0 mt-0.5" />
                     {pro}
                   </li>
                 ))}
@@ -180,7 +180,7 @@ export function ProductSummary({ product }: ProductSummaryProps) {
               <ul className="space-y-1">
                 {cons.map((con, index) => (
                   <li key={index} className="flex items-start gap-2 text-sm text-red-700">
-                    <X className="h-4 w-4 text-red-500 flex-shrink-0 mt-0.5" />
+                    <X className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
                     {con}
                   </li>
                 ))}

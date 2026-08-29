@@ -30,7 +30,7 @@ export default async function StatisticsPage() {
               >
                 <div className="p-6">
                   <div className="flex items-start gap-3">
-                    <div className="bg-purple-50 p-2 rounded-lg flex-shrink-0">
+                    <div className="bg-purple-50 p-2 rounded-lg shrink-0">
                       <BarChart3 className="h-5 w-5 text-purple-600" />
                     </div>
                     <div>

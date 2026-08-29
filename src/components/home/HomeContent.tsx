@@ -130,7 +130,7 @@ export function HomeContent() {
           {["Electronics", "Fashion", "Home & Garden", "Sports"].map((category) => (
             <div
               key={category}
-              className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6 text-center hover:shadow-lg transition-shadow cursor-pointer"
+              className="bg-linear-to-br from-blue-50 to-indigo-50 rounded-lg p-6 text-center hover:shadow-lg transition-shadow cursor-pointer"
             >
               <div className="text-4xl mb-2">📦</div>
               <h3 className="font-medium">{category}</h3>

@@ -1,24 +1,26 @@
 ﻿// src/app/comparisons/page.tsx
-import Link from "next/link"
-import { comparisonService } from "@/services"
-import { GitCompare, Calendar, User } from "lucide-react"
+import Link from "next/link";
+import { comparisonService } from "@/services";
+import { GitCompare, Calendar, User } from "lucide-react";
 
 export const metadata = {
   title: "Product Comparisons",
   description: "Compare products side by side to make the best decision",
-}
+};
 
 export default async function ComparisonsPage() {
   const { data: comparisons, total } = await comparisonService.getAll({
     status: "PUBLISHED",
     limit: 12,
-  })
+  });
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
         <h1 className="text-3xl font-bold mb-2">Product Comparisons</h1>
-        <p className="text-gray-600 mb-8">Compare products side by side to make the best decision</p>
+        <p className="text-gray-600 mb-8">
+          Compare products side by side to make the best decision
+        </p>
 
         {comparisons && comparisons.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -30,14 +32,17 @@ export default async function ComparisonsPage() {
               >
                 <div className="p-6">
                   <div className="flex items-start gap-3">
-                    <GitCompare className="h-5 w-5 text-blue-600 flex-shrink-0 mt-1" />
+                    <GitCompare className="h-5 w-5 text-blue-600 shrink-0 mt-1" />
                     <div>
                       <h3 className="font-semibold text-lg group-hover:text-blue-600 transition-colors line-clamp-2">
                         {comparison.title}
                       </h3>
                       <div className="flex items-center gap-2 mt-1">
                         {comparison.products.slice(0, 3).map((cp, index) => (
-                          <span key={cp.productId} className="text-xs text-gray-500">
+                          <span
+                            key={cp.productId}
+                            className="text-xs text-gray-500"
+                          >
                             {cp.product.name}
                             {index < comparison.products.length - 1 && " vs "}
                           </span>
@@ -95,5 +100,5 @@ export default async function ComparisonsPage() {
         )}
       </div>
     </div>
-  )
+  );
 }

@@ -30,7 +30,7 @@ export default async function BestOfPage() {
               >
                 <div className="p-6">
                   <div className="flex items-start gap-3">
-                    <div className="bg-yellow-100 p-2 rounded-lg flex-shrink-0">
+                    <div className="bg-yellow-100 p-2 rounded-lg shrink-0">
                       <Star className="h-5 w-5 text-yellow-600" />
                     </div>
                     <div>

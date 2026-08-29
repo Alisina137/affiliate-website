@@ -1,5 +1,6 @@
 ﻿// src/components/categories/CategoryHeader.tsx
 import Link from "next/link"
+import Image from "next/image"
 import { Home, ChevronRight } from "lucide-react"
 
 interface CategoryHeaderProps {
@@ -50,11 +51,15 @@ export function CategoryHeader({ category }: CategoryHeaderProps) {
       {/* Category Info */}
       <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
         {category.image && (
-          <img
-            src={category.image}
-            alt={category.name}
-            className="w-full h-48 object-cover rounded-lg mb-4"
-          />
+          <div className="relative w-full h-48 rounded-lg overflow-hidden mb-4">
+            <Image
+              src={category.image}
+              alt={category.name}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+            />
+          </div>
         )}
         <h1 className="text-3xl font-bold mb-2">{category.name}</h1>
         {category.description && (

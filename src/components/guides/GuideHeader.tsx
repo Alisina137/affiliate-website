@@ -1,6 +1,6 @@
 ﻿// src/components/guides/GuideHeader.tsx
-import { BookOpen, Clock, User, Calendar } from "lucide-react"
-import Link from "next/link"
+import { BookOpen, Clock, Calendar } from "lucide-react"
+import Image from "next/image"
 
 interface GuideHeaderProps {
   guide: {
@@ -59,11 +59,14 @@ export function GuideHeader({ guide }: GuideHeaderProps) {
         {guide.author && (
           <div className="flex items-center gap-2">
             {guide.author.image && (
-              <img 
-                src={guide.author.image} 
-                alt={guide.author.name || "Author"} 
-                className="w-6 h-6 rounded-full"
-              />
+              <div className="relative w-6 h-6 rounded-full overflow-hidden">
+                <Image 
+                  src={guide.author.image} 
+                  alt={guide.author.name || "Author"} 
+                  fill
+                  className="object-cover"
+                />
+              </div>
             )}
             <span>{guide.author.name || "Anonymous"}</span>
           </div>

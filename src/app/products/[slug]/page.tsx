@@ -7,8 +7,6 @@ import { ProductSpecifications } from "@/components/products/ProductSpecificatio
 import { ProductReviews } from "@/components/products/ProductReviews"
 import { RelatedProducts } from "@/components/products/RelatedProducts"
 import { ProductAffiliateCTA } from "@/components/products/ProductAffiliateCTA"
-import { ProductComparisonSuggestion } from "@/components/products/ProductComparisonSuggestion"
-import { ProductCategoryNav } from "@/components/products/ProductCategoryNav"
 import { ArrowLeft } from "lucide-react"
 
 interface ProductPageProps {
@@ -44,10 +42,22 @@ export default async function ProductPage({ params }: ProductPageProps) {
   // Get related products
   const relatedProducts = await productService.getRelated(product.id, product.categoryId || undefined)
 
-  // Get similar products for comparison (using the same related products)
-  const similarProducts = relatedProducts || []
+  // Convert specifications to the proper type
+  const rawSpecifications = product.specifications as Record<string, unknown> | null
+  const specifications: Record<string, { value: string; type?: string }> = {}
+  
+  if (rawSpecifications) {
+    Object.keys(rawSpecifications).forEach((key) => {
+      const value = rawSpecifications[key]
+      if (value !== null && value !== undefined) {
+        specifications[key] = {
+          value: String(value),
+          type: typeof value === "string" && value.startsWith("http") ? "url" : "text"
+        }
+      }
+    })
+  }
 
-  const specifications = product.specifications as Record<string, unknown> | null
   const category = product.category as { id: string; name: string; slug: string } | null
   const reviews = product.reviews || []
 
@@ -55,7 +65,19 @@ export default async function ProductPage({ params }: ProductPageProps) {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumbs */}
-        <ProductCategoryNav category={category} productName={product.name} />
+        <nav className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+          <Link href="/" className="hover:text-blue-600">Home</Link>
+          <span>/</span>
+          {category && (
+            <>
+              <Link href={`/categories/${category.slug}`} className="hover:text-blue-600">
+                {category.name}
+              </Link>
+              <span>/</span>
+            </>
+          )}
+          <span className="text-gray-900 font-medium">{product.name}</span>
+        </nav>
 
         {/* Back Button */}
         <Link
@@ -79,7 +101,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
 
         {/* Specifications */}
-        {specifications && Object.keys(specifications).length > 0 && (
+        {Object.keys(specifications).length > 0 && (
           <div className="mt-12">
             <ProductSpecifications specifications={specifications} />
           </div>
@@ -88,16 +110,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
         {/* Reviews */}
         {reviews.length > 0 && (
           <div className="mt-12">
-            <ProductReviews reviews={reviews} productName={product.name} />
+            <ProductReviews reviews={reviews} />
           </div>
         )}
 
-        {/* Comparison Suggestion */}
-        <ProductComparisonSuggestion product={product} similarProducts={similarProducts} />
-
         {/* Related Products */}
         {relatedProducts && relatedProducts.length > 0 && (
-          <div className="mt-8">
+          <div className="mt-12">
             <RelatedProducts products={relatedProducts} />
           </div>
         )}

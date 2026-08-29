@@ -1,7 +1,5 @@
-﻿// src/components/reviews/ReviewContent.tsx
-"use client"
+﻿"use client"
 
-import { useState } from "react"
 import { Star, Check, X, ThumbsUp, Share2, Bookmark } from "lucide-react"
 
 interface Review {
@@ -42,25 +40,13 @@ interface ReviewContentProps {
 }
 
 export function ReviewContent({ review }: ReviewContentProps) {
-  const [showFullContent, setShowFullContent] = useState(false)
-
-  const formatPrice = (price: number, currency: string = "USD") => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: currency,
-    }).format(price)
-  }
-
-  // Parse content blocks if they exist
   const renderContent = () => {
     if (!review.content) return null
 
-    // Check if content has HTML or is plain text
     if (review.content.includes("<") || review.content.includes(">")) {
       return <div dangerouslySetInnerHTML={{ __html: review.content }} />
     }
 
-    // Plain text - split into paragraphs
     const paragraphs = review.content.split("\n\n").filter(p => p.trim())
     return paragraphs.map((paragraph, index) => (
       <p key={index} className="text-gray-700 leading-relaxed mb-4">
@@ -71,7 +57,6 @@ export function ReviewContent({ review }: ReviewContentProps) {
 
   return (
     <div className="space-y-8">
-      {/* Rating Summary */}
       <div className="bg-white rounded-lg shadow-sm border p-6">
         <h2 className="text-xl font-bold mb-4">Rating Summary</h2>
         <div className="flex items-center gap-6">
@@ -89,7 +74,6 @@ export function ReviewContent({ review }: ReviewContentProps) {
         </div>
       </div>
 
-      {/* Pros & Cons */}
       {(review.pros?.length > 0 || review.cons?.length > 0) && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {review.pros?.length > 0 && (
@@ -101,7 +85,7 @@ export function ReviewContent({ review }: ReviewContentProps) {
               <ul className="space-y-2">
                 {review.pros.map((pro, index) => (
                   <li key={index} className="flex items-start gap-2 text-green-700">
-                    <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <Check className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
                     <span>{pro}</span>
                   </li>
                 ))}
@@ -117,7 +101,7 @@ export function ReviewContent({ review }: ReviewContentProps) {
               <ul className="space-y-2">
                 {review.cons.map((con, index) => (
                   <li key={index} className="flex items-start gap-2 text-red-700">
-                    <X className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+                    <X className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
                     <span>{con}</span>
                   </li>
                 ))}
@@ -127,7 +111,6 @@ export function ReviewContent({ review }: ReviewContentProps) {
         </div>
       )}
 
-      {/* Verdict */}
       {review.verdict && (
         <div className="bg-blue-50 rounded-lg border border-blue-100 p-6">
           <h3 className="font-semibold text-blue-800 text-lg mb-2">Verdict</h3>
@@ -135,7 +118,6 @@ export function ReviewContent({ review }: ReviewContentProps) {
         </div>
       )}
 
-      {/* Full Content */}
       {review.content && (
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <h2 className="text-xl font-bold mb-4">Full Review</h2>
@@ -145,25 +127,6 @@ export function ReviewContent({ review }: ReviewContentProps) {
         </div>
       )}
 
-      {/* Product Price & CTA */}
-      {review.product && review.product.price && (
-        <div className="bg-white rounded-lg shadow-sm border p-6">
-          <h3 className="font-semibold mb-2">Product Price</h3>
-          <div className="flex items-center justify-between">
-            <span className="text-2xl font-bold text-blue-600">
-              {formatPrice(review.product.price, review.product.currency)}
-            </span>
-            <Link
-              href={`/products/${review.product.slug}`}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-            >
-              View Product
-            </Link>
-          </div>
-        </div>
-      )}
-
-      {/* Share Actions */}
       <div className="flex items-center gap-4">
         <button className="flex items-center gap-2 text-sm text-gray-600 hover:text-blue-600 transition-colors">
           <ThumbsUp className="h-4 w-4" />

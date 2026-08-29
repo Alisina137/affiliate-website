@@ -23,8 +23,8 @@ interface Product {
     name: string
     slug: string
   } | null
-  specifications?: any
-  features?: any
+  specifications?: Record<string, string | number | boolean | null> | null
+  features?: string[] | null
   affiliateLinks?: Array<{
     id: string
     url: string
@@ -83,11 +83,11 @@ export function ComparisonTable({ comparison, products }: ComparisonTableProps) 
         <table className="w-full">
           <thead>
             <tr className="bg-gray-50 border-b">
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 w-1/4 min-w-[150px]">
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 w-1/4 min-w-37.5">
                 Feature
               </th>
               {products.map((product) => (
-                <th key={product.id} className="px-4 py-3 text-center w-1/4 min-w-[200px]">
+                <th key={product.id} className="px-4 py-3 text-center w-1/4 min-w-50">
                   <div className="flex flex-col items-center">
                     <Link
                       href={`/products/${product.slug}`}
@@ -179,7 +179,7 @@ export function ComparisonTable({ comparison, products }: ComparisonTableProps) 
                       <ul className="space-y-1">
                         {strengths.map((s, i) => (
                           <li key={i} className="flex items-start gap-1 text-green-600">
-                            <Check className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                            <Check className="h-4 w-4 shrink-0 mt-0.5" />
                             <span className="text-gray-700">{s}</span>
                           </li>
                         ))}
@@ -204,7 +204,7 @@ export function ComparisonTable({ comparison, products }: ComparisonTableProps) 
                       <ul className="space-y-1">
                         {weaknesses.map((w, i) => (
                           <li key={i} className="flex items-start gap-1 text-red-600">
-                            <X className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                            <X className="h-4 w-4 shrink-0 mt-0.5" />
                             <span className="text-gray-700">{w}</span>
                           </li>
                         ))}

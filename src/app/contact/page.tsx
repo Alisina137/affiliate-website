@@ -1,6 +1,6 @@
 ﻿// src/app/contact/page.tsx
 import { Metadata } from "next"
-import { Mail, Phone, MapPin, Send, Clock } from "lucide-react"
+import { Mail, MapPin, Clock } from "lucide-react"
 import { ContactForm } from "@/components/contact/ContactForm"
 
 export const metadata: Metadata = {
@@ -15,7 +15,7 @@ export default function ContactPage() {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4">Contact Us</h1>
           <p className="text-xl text-gray-600">
-            Have a question or suggestion? We'd love to hear from you!
+            Have a question or suggestion? We&apos;d love to hear from you!
           </p>
         </div>
 

@@ -1,6 +1,6 @@
 ﻿// src/components/guides/GuideSidebar.tsx
 import Link from "next/link"
-import { ShoppingCart, Award, TrendingUp, Clock, CheckCircle, BookOpen } from "lucide-react"
+import { Award, CheckCircle, BookOpen } from "lucide-react"
 
 interface Product {
   id: string

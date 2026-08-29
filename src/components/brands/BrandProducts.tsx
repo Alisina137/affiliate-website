@@ -3,6 +3,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Star, ShoppingCart, Package, ChevronLeft, ChevronRight } from "lucide-react"
 
@@ -33,10 +34,9 @@ interface Product {
 interface BrandProductsProps {
   products: Product[]
   total: number
-  brandSlug: string
 }
 
-export function BrandProducts({ products, total, brandSlug }: BrandProductsProps) {
+export function BrandProducts({ products, total }: BrandProductsProps) {
   const router = useRouter()
   const [currentPage, setCurrentPage] = useState(1)
   const [sortBy, setSortBy] = useState("createdAt")
@@ -82,7 +82,7 @@ export function BrandProducts({ products, total, brandSlug }: BrandProductsProps
       <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
         <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
         <h3 className="text-xl font-semibold text-gray-600">No Products Found</h3>
-        <p className="text-gray-400 mt-2">This brand doesn't have any products yet.</p>
+        <p className="text-gray-400 mt-2">This brand doesn&apos;t have any products yet.</p>
       </div>
     )
   }
@@ -119,10 +119,12 @@ export function BrandProducts({ products, total, brandSlug }: BrandProductsProps
               {/* Image */}
               <Link href={`/products/${product.slug}`} className="block relative aspect-square bg-gray-100">
                 {product.images && product.images.length > 0 ? (
-                  <img
+                  <Image
                     src={product.images[0]}
                     alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400">

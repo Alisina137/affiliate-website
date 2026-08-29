@@ -5,10 +5,12 @@ import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { ChevronDown, ChevronUp, X, SlidersHorizontal } from "lucide-react"
 
+type SortBy = "relevance" | "createdAt" | "price" | "rating"
+
 interface SearchFiltersProps {
   currentFilters: {
     type: string
-    sortBy: string
+    sortBy: SortBy
     sortOrder: string
     categoryId?: string
     brandId?: string
@@ -49,7 +51,6 @@ export function SearchFilters({ currentFilters }: SearchFiltersProps) {
   const applyFilters = () => {
     const params = new URLSearchParams()
     
-    // Get current query from URL
     const urlParams = new URLSearchParams(window.location.search)
     const query = urlParams.get("q") || ""
 
@@ -86,7 +87,7 @@ export function SearchFilters({ currentFilters }: SearchFiltersProps) {
     setIsMobileOpen(false)
   }
 
-  const hasActiveFilters = () => {
+  const hasActiveFilters = (): boolean => {
     return !!(filters.type !== "all" || filters.sortBy !== "relevance" || 
       filters.minPrice || filters.maxPrice)
   }
@@ -150,7 +151,7 @@ export function SearchFilters({ currentFilters }: SearchFiltersProps) {
           <h3 className="font-semibold text-sm text-gray-700 mb-2">Sort By</h3>
           <select
             value={filters.sortBy}
-            onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })}
+            onChange={(e) => setFilters({ ...filters, sortBy: e.target.value as SortBy })}
             className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             {sortOptions.map((option) => (

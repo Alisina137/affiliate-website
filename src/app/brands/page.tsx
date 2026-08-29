@@ -1,7 +1,8 @@
 ﻿// src/app/brands/page.tsx
 import Link from "next/link"
+import Image from "next/image"
 import { brandService } from "@/services"
-import { Building2, Package, Star } from "lucide-react"
+import { Building2 } from "lucide-react"
 
 export const metadata = {
   title: "Brands",
@@ -28,11 +29,15 @@ export default async function BrandsPage() {
                 className="group bg-white rounded-lg shadow-sm border p-6 hover:shadow-lg transition-all duration-300 text-center"
               >
                 {brand.logo ? (
-                  <img 
-                    src={brand.logo} 
-                    alt={brand.name} 
-                    className="h-16 w-16 mx-auto object-contain mb-3"
-                  />
+                  <div className="relative h-16 w-16 mx-auto mb-3">
+                    <Image 
+                      src={brand.logo} 
+                      alt={brand.name} 
+                      fill
+                      className="object-contain"
+                      sizes="64px"
+                    />
+                  </div>
                 ) : (
                   <div className="h-16 w-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-3">
                     <Building2 className="h-8 w-8 text-gray-400" />

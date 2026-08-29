@@ -1,4 +1,6 @@
 ﻿// src/components/home/ProductCard.tsx
+"use client"
+
 import Link from "next/link"
 import Image from "next/image"
 import { Star, ShoppingCart } from "lucide-react"
@@ -19,7 +21,6 @@ interface ProductCardProps {
 }
 
 export function ProductCard({
-  id,
   name,
   slug,
   image,
@@ -42,10 +43,12 @@ export function ProductCard({
         {/* Image */}
         <div className="aspect-square bg-gray-100 relative">
           {image ? (
-            <img
+            <Image
               src={image}
               alt={name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -64,20 +67,20 @@ export function ProductCard({
           </h3>
 
           {/* Rating */}
-          {rating !== undefined && rating > 0 && (
+          {rating && rating > 0 && (
             <div className="flex items-center gap-1 mt-1">
               <div className="flex items-center">
                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                 <span className="text-sm font-medium ml-1">{rating.toFixed(1)}</span>
               </div>
-              {reviewCount !== undefined && reviewCount > 0 && (
+              {reviewCount && reviewCount > 0 && (
                 <span className="text-xs text-gray-500">({reviewCount})</span>
               )}
             </div>
           )}
 
           {/* Price */}
-          {price !== undefined && price !== null && (
+          {price && (
             <p className="text-lg font-bold text-blue-600 mt-2">
               {formatPrice(price)}
             </p>

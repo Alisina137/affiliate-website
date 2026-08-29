@@ -1,14 +1,15 @@
 ﻿// src/services/brand.service.ts
-import { db } from "@/lib/db"
+import { db } from "@/lib/db";
+import type { Prisma } from "@prisma/client";
 
 export const brandService = {
   // Get all brands
   async getAll(params?: {
-    nicheId?: string
-    isActive?: boolean
-    search?: string
-    limit?: number
-    offset?: number
+    nicheId?: string;
+    isActive?: boolean;
+    search?: string;
+    limit?: number;
+    offset?: number;
   }) {
     const {
       nicheId,
@@ -16,16 +17,17 @@ export const brandService = {
       search,
       limit = 20,
       offset = 0,
-    } = params || {}
+    } = params || {};
 
-    const where: any = { isActive }
+    // Use proper Prisma type instead of any
+    const where: Prisma.BrandWhereInput = { isActive };
 
-    if (nicheId) where.nicheId = nicheId
+    if (nicheId) where.nicheId = nicheId;
     if (search) {
       where.OR = [
         { name: { contains: search, mode: "insensitive" } },
         { description: { contains: search, mode: "insensitive" } },
-      ]
+      ];
     }
 
     const [data, total] = await Promise.all([
@@ -42,7 +44,7 @@ export const brandService = {
         take: limit,
       }),
       db.brand.count({ where }),
-    ])
+    ]);
 
     return {
       data,
@@ -50,7 +52,7 @@ export const brandService = {
       page: Math.floor(offset / limit) + 1,
       limit,
       totalPages: Math.ceil(total / limit),
-    }
+    };
   },
 
   // Get a brand by slug
@@ -74,7 +76,7 @@ export const brandService = {
           where: { isActive: true },
         },
       },
-    })
+    });
   },
 
   // Get a brand by ID
@@ -88,22 +90,25 @@ export const brandService = {
           take: 10,
         },
       },
-    })
+    });
   },
 
   // Get products by brand
-  async getProducts(brandId: string, params?: {
-    limit?: number
-    offset?: number
-    sortBy?: string
-    sortOrder?: "asc" | "desc"
-  }) {
+  async getProducts(
+    brandId: string,
+    params?: {
+      limit?: number;
+      offset?: number;
+      sortBy?: string;
+      sortOrder?: "asc" | "desc";
+    },
+  ) {
     const {
       limit = 12,
       offset = 0,
       sortBy = "createdAt",
       sortOrder = "desc",
-    } = params || {}
+    } = params || {};
 
     const [products, total] = await Promise.all([
       db.product.findMany({
@@ -125,7 +130,7 @@ export const brandService = {
       db.product.count({
         where: { brandId, isActive: true },
       }),
-    ])
+    ]);
 
     return {
       products,
@@ -133,7 +138,7 @@ export const brandService = {
       page: Math.floor(offset / limit) + 1,
       limit,
       totalPages: Math.ceil(total / limit),
-    }
+    };
   },
 
   // Get brand statistics
@@ -158,18 +163,18 @@ export const brandService = {
           status: "PUBLISHED",
         },
       }),
-    ])
+    ]);
 
     const avgRating = await db.product.aggregate({
       where: { brandId, isActive: true },
       _avg: { rating: true },
-    })
+    });
 
     return {
       productCount: products,
       categoryCount: categories,
       reviewCount: reviews,
       averageRating: avgRating._avg.rating || 0,
-    }
+    };
   },
-}
+};

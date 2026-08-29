@@ -13,6 +13,50 @@ import type {
 } from "@prisma/client"
 
 // ============================================
+// ADD THESE MISSING TYPES
+// ============================================
+
+// Base types for relation models (these come from your Prisma schema)
+export type ComparisonProduct = {
+  id: string
+  comparisonId: string
+  productId: string
+  score?: number | null
+  position?: number
+  notes?: string | null
+  product: Product & {
+    brand?: Brand | null
+  }
+}
+
+export type BestOfEntry = {
+  id: string
+  bestOfId: string
+  productId: string
+  position: number
+  award?: string | null
+  score?: number | null
+  pros?: string[] | null
+  cons?: string[] | null
+  product: Product & {
+    brand?: Brand | null
+  }
+}
+
+export type GuideProduct = {
+  id: string
+  guideId: string
+  productId: string
+  position: number
+  isRecommended?: boolean
+  pros?: string[] | null
+  cons?: string[] | null
+  product: Product & {
+    brand?: Brand | null
+  }
+}
+
+// ============================================
 // ARTICLE TYPES
 // ============================================
 
@@ -28,7 +72,7 @@ export type ArticleWithRelations = Article & {
 export type ReviewWithRelations = Review & {
   product: Product & {
     brand?: Brand | null
-    affiliateLinks?: any[]
+    affiliateLinks?: unknown[]  // Changed from any[] to unknown[]
   }
   author?: Pick<User, "id" | "name" | "email" | "image">
 }
@@ -139,14 +183,11 @@ export type ContentBlockType =
   | "table"
   | "prosCons"
   | "quote"
-  | "callout"
   | "affiliateCTA"
-  | "faq"
   | "statistics"
-  | "embed"
 
 export interface ContentBlock {
   id: string
   type: ContentBlockType
-  data: Record<string, any>
+  data: Record<string, unknown>  // Changed from any to unknown
 }

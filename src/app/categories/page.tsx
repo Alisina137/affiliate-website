@@ -61,7 +61,7 @@ export default async function CategoriesPage() {
                     </div>
                   )}
                 </div>
-                <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors flex-shrink-0 mt-1" />
+                <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-blue-600 transition-colors shrink-0 mt-1" />
               </div>
             </Link>
           ))}

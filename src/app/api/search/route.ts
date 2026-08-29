@@ -2,19 +2,23 @@
 import { NextRequest, NextResponse } from "next/server"
 import { searchService } from "@/services/search.service"
 
+type SearchType = "all" | "product" | "review" | "comparison" | "guide" | "article" | "brand" | "category"
+type SortBy = "relevance" | "createdAt" | "rating" | "price"
+type SortOrder = "asc" | "desc"
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
     
     const query = searchParams.get("q") || ""
-    const type = searchParams.get("type") as any || "all"
+    const type = (searchParams.get("type") as SearchType) || "all"
     const categoryId = searchParams.get("categoryId") || undefined
     const brandId = searchParams.get("brandId") || undefined
     const nicheId = searchParams.get("nicheId") || undefined
     const minPrice = searchParams.get("minPrice") ? parseFloat(searchParams.get("minPrice")!) : undefined
     const maxPrice = searchParams.get("maxPrice") ? parseFloat(searchParams.get("maxPrice")!) : undefined
-    const sortBy = searchParams.get("sortBy") as any || "relevance"
-    const sortOrder = searchParams.get("sortOrder") as any || "desc"
+    const sortBy = (searchParams.get("sortBy") as SortBy) || "relevance"
+    const sortOrder = (searchParams.get("sortOrder") as SortOrder) || "desc"
     const limit = parseInt(searchParams.get("limit") || "20")
     const offset = parseInt(searchParams.get("offset") || "0")
 

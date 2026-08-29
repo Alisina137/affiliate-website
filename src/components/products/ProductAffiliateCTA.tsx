@@ -1,4 +1,5 @@
-﻿// src/components/products/ProductAffiliateCTA.tsx
+﻿ 
+// src/components/products/ProductAffiliateCTA.tsx
 "use client"
 
 import { useState } from "react"
@@ -27,7 +28,7 @@ interface ProductAffiliateCTAProps {
 }
 
 export function ProductAffiliateCTA({ product }: ProductAffiliateCTAProps) {
-  const [selectedLink, setSelectedLink] = useState<AffiliateLink | null>(
+  const [selectedLink] = useState<AffiliateLink | null>(
     product.affiliateLinks && product.affiliateLinks.length > 0
       ? product.affiliateLinks[0]
       : null

@@ -3,25 +3,21 @@ import Link from "next/link"
 import { Star, User } from "lucide-react"
 
 interface ReviewCardProps {
-  id: string
   title: string
   slug: string
   excerpt?: string | null
   rating?: number | null
   productName: string
-  productSlug: string
   authorName?: string | null
   publishedAt?: Date | null
 }
 
 export function ReviewCard({
-  id,
   title,
   slug,
   excerpt,
   rating,
   productName,
-  productSlug,
   authorName,
   publishedAt,
 }: ReviewCardProps) {

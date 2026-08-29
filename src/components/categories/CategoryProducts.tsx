@@ -1,8 +1,8 @@
 ﻿// src/components/categories/CategoryProducts.tsx
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { useRouter, usePathname } from "next/navigation"
 import { Star, ShoppingCart, Eye, Package, ChevronLeft, ChevronRight } from "lucide-react"
 
@@ -88,7 +88,7 @@ export function CategoryProducts({
         </div>
         <h3 className="text-xl font-semibold mb-2">No Products Found</h3>
         <p className="text-gray-500 max-w-md">
-          We couldn't find any products matching your criteria. Try adjusting your filters or browse other categories.
+          We couldn&apos;t find any products matching your criteria. Try adjusting your filters or browse other categories.
         </p>
         <Link
           href={`/categories/${categorySlug}`}
@@ -120,10 +120,12 @@ export function CategoryProducts({
             {/* Image */}
             <Link href={`/products/${product.slug}`} className="block relative aspect-square bg-gray-100">
               {product.images && product.images.length > 0 ? (
-                <img
+                <Image
                   src={product.images[0]}
                   alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-400">

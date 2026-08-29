@@ -69,7 +69,7 @@ export function SearchInput({ initialQuery = "" }: SearchInputProps) {
     <div className="relative" ref={suggestionsRef}>
       <form onSubmit={handleSubmit} className="relative">
         <div className="flex items-center bg-white rounded-lg shadow-sm border focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition-all">
-          <Search className="h-5 w-5 text-gray-400 ml-4 flex-shrink-0" />
+          <Search className="h-5 w-5 text-gray-400 ml-4 shrink-0" />
           <input
             ref={inputRef}
             type="text"

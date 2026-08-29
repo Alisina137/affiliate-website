@@ -73,7 +73,6 @@ export default async function BestOfPage({ params }: BestOfPageProps) {
             <BestOfSidebar
               entries={topEntries}
               category={bestOf.category}
-              title={bestOf.title}
             />
           </div>
         </div>

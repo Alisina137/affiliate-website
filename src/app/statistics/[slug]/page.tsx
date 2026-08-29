@@ -37,6 +37,12 @@ export default async function StatisticPage({ params }: StatisticPageProps) {
     notFound()
   }
 
+  // Transform statistic data with proper typing
+  const typedStatistic = {
+    ...statistic,
+    data: statistic.data as any
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
@@ -59,15 +65,15 @@ export default async function StatisticPage({ params }: StatisticPageProps) {
         </Link>
 
         {/* Statistic Header */}
-        <StatisticHeader statistic={statistic} />
+        <StatisticHeader statistic={typedStatistic} />
 
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
           <div className="lg:col-span-2">
-            <StatisticContent statistic={statistic} />
+            <StatisticContent statistic={typedStatistic} />
           </div>
           <div className="lg:col-span-1">
-            <StatisticSidebar statistic={statistic} />
+            <StatisticSidebar statistic={typedStatistic} />
           </div>
         </div>
       </div>

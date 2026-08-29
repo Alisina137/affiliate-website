@@ -1,92 +1,92 @@
 ﻿// src/components/guides/GuideContent.tsx
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Check, ShoppingCart, ArrowRight, ChevronDown, ChevronUp } from "lucide-react"
+import { useState } from "react";
+import Link from "next/link";
+import { ShoppingCart, ArrowRight, ChevronDown, ChevronUp } from "lucide-react";
 
 interface Product {
-  id: string
-  name: string
-  slug: string
-  price?: number | null
-  currency: string
-  rating?: number | null
-  reviewCount: number
-  images: string[]
+  id: string;
+  name: string;
+  slug: string;
+  price?: number | null;
+  currency: string;
+  rating?: number | null;
+  reviewCount: number;
+  images: string[];
   brand?: {
-    id: string
-    name: string
-    slug: string
-  } | null
+    id: string;
+    name: string;
+    slug: string;
+  } | null;
   affiliateLinks?: Array<{
-    id: string
-    url: string
-    label: string
-    merchant: string
-  }>
+    id: string;
+    url: string;
+    label: string;
+    merchant: string;
+  }>;
 }
 
 interface GuideContentProps {
   guide: {
-    id: string
-    content?: string | null
-    tableOfContents?: any
+    id: string;
+    content?: string | null;
+    tableOfContents?: string[] | string | null; // Changed from any to specific types
     guideProducts: Array<{
-      id: string
-      context?: string | null
-      order: number
-      product: Product
-    }>
-  }
+      id: string;
+      context?: string | null;
+      order: number;
+      product: Product;
+    }>;
+  };
 }
 
 export function GuideContent({ guide }: GuideContentProps) {
-  const [showAllProducts, setShowAllProducts] = useState(false)
+  const [showAllProducts, setShowAllProducts] = useState(false);
 
   const formatPrice = (price: number, currency: string = "USD") => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: currency,
-    }).format(price)
-  }
+    }).format(price);
+  };
 
   // Parse table of contents
-  let tocItems: string[] = []
+  let tocItems: string[] = [];
   if (guide.tableOfContents) {
     if (typeof guide.tableOfContents === "string") {
       try {
-        tocItems = JSON.parse(guide.tableOfContents)
+        tocItems = JSON.parse(guide.tableOfContents);
       } catch {
-        tocItems = []
+        tocItems = [];
       }
     } else if (Array.isArray(guide.tableOfContents)) {
-      tocItems = guide.tableOfContents
+      tocItems = guide.tableOfContents;
     }
   }
 
   // Render content with paragraphs
   const renderContent = () => {
-    if (!guide.content) return null
+    if (!guide.content) return null;
 
     // Check if content has HTML
     if (guide.content.includes("<") || guide.content.includes(">")) {
-      return <div dangerouslySetInnerHTML={{ __html: guide.content }} />
+      return <div dangerouslySetInnerHTML={{ __html: guide.content }} />;
     }
 
     // Plain text - split into paragraphs
-    const paragraphs = guide.content.split("\n\n").filter(p => p.trim())
+    const paragraphs = guide.content.split("\n\n").filter((p) => p.trim());
     return paragraphs.map((paragraph, index) => (
       <p key={index} className="text-gray-700 leading-relaxed mb-4">
         {paragraph}
       </p>
-    ))
-  }
+    ));
+  };
 
   // Get top 3 products for display
-  const displayedProducts = showAllProducts 
-    ? guide.guideProducts 
-    : guide.guideProducts.slice(0, 3)
+  const displayedProducts = showAllProducts
+    ? guide.guideProducts
+    : guide.guideProducts.slice(0, 3);
 
   return (
     <div className="space-y-8">
@@ -97,7 +97,7 @@ export function GuideContent({ guide }: GuideContentProps) {
           <ul className="space-y-1">
             {tocItems.map((item, index) => (
               <li key={index}>
-                <a 
+                <a
                   href={`#section-${index + 1}`}
                   className="text-sm text-blue-600 hover:underline"
                 >
@@ -111,9 +111,7 @@ export function GuideContent({ guide }: GuideContentProps) {
 
       {/* Main Content */}
       <div className="bg-white rounded-lg shadow-sm border p-6">
-        <div className="prose prose-sm max-w-none">
-          {renderContent()}
-        </div>
+        <div className="prose prose-sm max-w-none">{renderContent()}</div>
       </div>
 
       {/* Recommended Products */}
@@ -122,29 +120,36 @@ export function GuideContent({ guide }: GuideContentProps) {
           <h3 className="text-xl font-bold mb-4">Recommended Products</h3>
           <div className="space-y-4">
             {displayedProducts.map((gp, index) => {
-              const product = gp.product
-              const bestLink = product.affiliateLinks?.[0]
+              const product = gp.product;
+              const bestLink = product.affiliateLinks?.[0];
 
               return (
-                <div key={gp.id} className="border-b last:border-b-0 pb-4 last:pb-0">
+                <div
+                  key={gp.id}
+                  className="border-b last:border-b-0 pb-4 last:pb-0"
+                >
                   <div className="flex flex-col md:flex-row md:items-center gap-4">
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">
                           #{index + 1}
                         </span>
-                        <Link 
+                        <Link
                           href={`/products/${product.slug}`}
                           className="font-semibold hover:text-blue-600 transition-colors"
                         >
                           {product.name}
                         </Link>
                         {product.brand && (
-                          <span className="text-xs text-gray-500">by {product.brand.name}</span>
+                          <span className="text-xs text-gray-500">
+                            by {product.brand.name}
+                          </span>
                         )}
                       </div>
                       {gp.context && (
-                        <p className="text-sm text-gray-600 mt-1">{gp.context}</p>
+                        <p className="text-sm text-gray-600 mt-1">
+                          {gp.context}
+                        </p>
                       )}
                       <div className="flex items-center gap-4 mt-1 text-sm">
                         {product.price && (
@@ -153,7 +158,9 @@ export function GuideContent({ guide }: GuideContentProps) {
                           </span>
                         )}
                         {product.rating && product.rating > 0 && (
-                          <span className="text-gray-500">⭐ {product.rating.toFixed(1)}</span>
+                          <span className="text-gray-500">
+                            ⭐ {product.rating.toFixed(1)}
+                          </span>
                         )}
                       </div>
                     </div>
@@ -178,7 +185,7 @@ export function GuideContent({ guide }: GuideContentProps) {
                     </div>
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
 
@@ -205,9 +212,11 @@ export function GuideContent({ guide }: GuideContentProps) {
       )}
 
       {/* Final CTA */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-lg p-6 text-white text-center">
+      <div className="bg-linear-to-r from-blue-600 to-indigo-700 rounded-lg p-6 text-white text-center">
         <h3 className="text-xl font-bold mb-2">Ready to Make a Decision?</h3>
-        <p className="text-blue-100 mb-4">Browse our full product catalog to find the perfect match.</p>
+        <p className="text-blue-100 mb-4">
+          Browse our full product catalog to find the perfect match.
+        </p>
         <Link
           href="/products"
           className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors"
@@ -217,5 +226,5 @@ export function GuideContent({ guide }: GuideContentProps) {
         </Link>
       </div>
     </div>
-  )
+  );
 }

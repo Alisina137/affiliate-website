@@ -1,6 +1,7 @@
 ﻿// src/components/products/RelatedProducts.tsx
 import Link from "next/link"
 import { Star, Package } from "lucide-react"
+import Image from "next/image";
 
 interface Product {
   id: string
@@ -47,9 +48,11 @@ export function RelatedProducts({ products }: RelatedProductsProps) {
             <div className="bg-gray-50 rounded-lg overflow-hidden">
               <div className="aspect-square bg-gray-100 flex items-center justify-center">
                 {product.images && product.images.length > 0 ? (
-                  <img
+                  <Image
                     src={product.images[0]}
                     alt={product.name}
+                    width={300}
+                    height={300}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 ) : (

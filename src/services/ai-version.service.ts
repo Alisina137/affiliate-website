@@ -1,16 +1,16 @@
 ﻿// src/services/ai-version.service.ts
-import { db } from "@/lib/db"
-import type { Prisma } from "@prisma/client"
+import { db } from "@/lib/db";
+import type { Prisma } from "@prisma/client";
 
 type ContentVersionCreateInput = {
-  contentId: string
-  contentType: string
-  data: Prisma.InputJsonValue
-  createdBy: string
-  generationId?: string
-  changeType: string
-  changes?: Prisma.InputJsonValue
-}
+  contentId: string;
+  contentType: string;
+  data: Prisma.InputJsonValue;
+  createdBy: string;
+  generationId?: string;
+  changeType: string;
+  changes?: Prisma.InputJsonValue;
+};
 
 export const aiVersionService = {
   // Create a new version
@@ -22,9 +22,9 @@ export const aiVersionService = {
         contentType: data.contentType,
       },
       orderBy: { version: "desc" },
-    })
+    });
 
-    const newVersion = (latest?.version || 0) + 1
+    const newVersion = (latest?.version || 0) + 1;
 
     // Set all existing versions as not current
     await db.aIContentVersion.updateMany({
@@ -34,7 +34,7 @@ export const aiVersionService = {
         isCurrent: true,
       },
       data: { isCurrent: false },
-    })
+    });
 
     // Create the new version
     return db.aIContentVersion.create({
@@ -59,7 +59,7 @@ export const aiVersionService = {
         },
         generation: true,
       },
-    })
+    });
   },
 
   // Get the current version of content
@@ -80,7 +80,7 @@ export const aiVersionService = {
         },
         generation: true,
       },
-    })
+    });
   },
 
   // Get a specific version
@@ -103,7 +103,7 @@ export const aiVersionService = {
         },
         generation: true,
       },
-    })
+    });
   },
 
   // Get all versions of content
@@ -124,11 +124,16 @@ export const aiVersionService = {
         },
         generation: true,
       },
-    })
+    });
   },
 
   // Rollback to a specific version
-  async rollback(contentId: string, contentType: string, version: number, userId: string) {
+  async rollback(
+    contentId: string,
+    contentType: string,
+    version: number,
+    userId: string,
+  ) {
     // Get the target version
     const targetVersion = await db.aIContentVersion.findUnique({
       where: {
@@ -138,21 +143,21 @@ export const aiVersionService = {
           version,
         },
       },
-    })
+    });
 
     if (!targetVersion) {
-      throw new Error("Version not found")
+      throw new Error("Version not found");
     }
 
     // Create a new version with the old data
     return this.create({
       contentId,
       contentType,
-      data: targetVersion.data,
+      data: targetVersion.data as Prisma.InputJsonValue,
       createdBy: userId,
       changeType: "ROLLBACK",
       changes: { rolledBackTo: version },
-    })
+    });
   },
 
   // Get version history count
@@ -162,6 +167,6 @@ export const aiVersionService = {
         contentId,
         contentType,
       },
-    })
+    });
   },
-}
+};

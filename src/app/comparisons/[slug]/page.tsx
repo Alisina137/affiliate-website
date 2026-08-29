@@ -37,8 +37,12 @@ export default async function ComparisonPage({ params }: ComparisonPageProps) {
     notFound()
   }
 
-  // Extract products from comparison
-  const products = comparison.products.map((cp) => cp.product)
+  // Extract products from comparison and properly type them
+  const products = comparison.products.map((cp) => ({
+    ...cp.product,
+    specifications: cp.product.specifications as Record<string, string | number | boolean | null> | null,
+    features: cp.product.features as string[] | null,
+  }))
 
   return (
     <div className="min-h-screen bg-gray-50">

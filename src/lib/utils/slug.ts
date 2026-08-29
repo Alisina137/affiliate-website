@@ -9,7 +9,7 @@ export function generateSlug(text: string): string {
 }
 
 export function generateUniqueSlug(text: string, existingSlugs: string[]): string {
-  let slug = generateSlug(text)
+  const slug = generateSlug(text)
   let uniqueSlug = slug
   let counter = 1
 

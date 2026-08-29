@@ -106,7 +106,7 @@ export function ReviewSidebar({ product, relatedProducts }: ReviewSidebarProps) 
                 href={`/products/${related.slug}`}
                 className="flex items-center gap-3 p-2 hover:bg-gray-50 rounded-lg transition-colors group"
               >
-                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
                   <Package className="h-6 w-6 text-gray-400" />
                 </div>
                 <div className="flex-1 min-w-0">

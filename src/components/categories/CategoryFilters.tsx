@@ -1,67 +1,60 @@
 ﻿// src/components/categories/CategoryFilters.tsx
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter, usePathname } from "next/navigation"
-import { ChevronDown, ChevronUp, X, SlidersHorizontal } from "lucide-react"
+import { useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { ChevronDown, ChevronUp, X, SlidersHorizontal } from "lucide-react";
 
 interface Brand {
-  id: string
-  name: string
-  slug: string
+  id: string;
+  name: string;
+  slug: string;
 }
 
 interface CategoryFiltersProps {
-  categoryId: string
-  brands: Brand[]
+  brands: Brand[];
   currentFilters: {
-    brandId?: string
-    minPrice?: number
-    maxPrice?: number
-    sortBy?: string
-    sortOrder?: "asc" | "desc"
-  }
+    brandId?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    sortBy?: string;
+    sortOrder?: "asc" | "desc";
+  };
 }
 
-export function CategoryFilters({ categoryId, brands, currentFilters }: CategoryFiltersProps) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const [isMobileOpen, setIsMobileOpen] = useState(false)
+export function CategoryFilters({
+  brands,
+  currentFilters,
+}: CategoryFiltersProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [filters, setFilters] = useState({
     brandId: currentFilters.brandId || "",
     minPrice: currentFilters.minPrice || "",
     maxPrice: currentFilters.maxPrice || "",
     sortBy: currentFilters.sortBy || "createdAt",
     sortOrder: currentFilters.sortOrder || "desc",
-  })
-
-  // Update filters when currentFilters changes
-  useEffect(() => {
-    setFilters({
-      brandId: currentFilters.brandId || "",
-      minPrice: currentFilters.minPrice || "",
-      maxPrice: currentFilters.maxPrice || "",
-      sortBy: currentFilters.sortBy || "createdAt",
-      sortOrder: currentFilters.sortOrder || "desc",
-    })
-  }, [currentFilters])
+  });
 
   const applyFilters = () => {
-    const params = new URLSearchParams()
+    const params = new URLSearchParams();
 
-    if (filters.brandId) params.set("brandId", filters.brandId)
-    if (filters.minPrice) params.set("minPrice", filters.minPrice.toString())
-    if (filters.maxPrice) params.set("maxPrice", filters.maxPrice.toString())
-    if (filters.sortBy && filters.sortBy !== "createdAt") params.set("sortBy", filters.sortBy)
-    if (filters.sortOrder && filters.sortOrder !== "desc") params.set("sortOrder", filters.sortOrder)
-    
+    if (filters.brandId) params.set("brandId", filters.brandId);
+    if (filters.minPrice) params.set("minPrice", filters.minPrice.toString());
+    if (filters.maxPrice) params.set("maxPrice", filters.maxPrice.toString());
+    if (filters.sortBy && filters.sortBy !== "createdAt")
+      params.set("sortBy", filters.sortBy);
+    if (filters.sortOrder && filters.sortOrder !== "desc")
+      params.set("sortOrder", filters.sortOrder);
+
     // Reset to page 1 when filters change
-    params.set("page", "1")
+    params.set("page", "1");
 
-    const queryString = params.toString()
-    router.push(`${pathname}${queryString ? `?${queryString}` : ""}`)
-    setIsMobileOpen(false)
-  }
+    const queryString = params.toString();
+    router.push(`${pathname}${queryString ? `?${queryString}` : ""}`);
+    setIsMobileOpen(false);
+  };
 
   const clearFilters = () => {
     setFilters({
@@ -70,16 +63,20 @@ export function CategoryFilters({ categoryId, brands, currentFilters }: Category
       maxPrice: "",
       sortBy: "createdAt",
       sortOrder: "desc",
-    })
-    router.push(pathname)
-    setIsMobileOpen(false)
-  }
+    });
+    router.push(pathname);
+    setIsMobileOpen(false);
+  };
 
   const hasActiveFilters = () => {
-    return !!(filters.brandId || filters.minPrice || filters.maxPrice || 
+    return !!(
+      filters.brandId ||
+      filters.minPrice ||
+      filters.maxPrice ||
       (filters.sortBy && filters.sortBy !== "createdAt") ||
-      (filters.sortOrder && filters.sortOrder !== "desc"))
-  }
+      (filters.sortOrder && filters.sortOrder !== "desc")
+    );
+  };
 
   const sortOptions = [
     { value: "createdAt", label: "Newest" },
@@ -87,7 +84,7 @@ export function CategoryFilters({ categoryId, brands, currentFilters }: Category
     { value: "price_desc", label: "Price: High to Low" },
     { value: "rating", label: "Highest Rated" },
     { value: "reviewCount", label: "Most Popular" },
-  ]
+  ];
 
   return (
     <>
@@ -106,20 +103,29 @@ export function CategoryFilters({ categoryId, brands, currentFilters }: Category
               </span>
             )}
           </span>
-          {isMobileOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+          {isMobileOpen ? (
+            <ChevronUp className="h-5 w-5" />
+          ) : (
+            <ChevronDown className="h-5 w-5" />
+          )}
         </button>
       </div>
 
       {/* Filters Panel */}
-      <div className={`
+      <div
+        className={`
         ${isMobileOpen ? "block" : "hidden"} lg:block
         bg-white rounded-lg shadow-sm border p-4 space-y-6
         ${isMobileOpen ? "fixed inset-0 z-50 overflow-y-auto p-6" : "relative"}
-      `}>
+      `}
+      >
         {isMobileOpen && (
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold">Filters</h2>
-            <button onClick={() => setIsMobileOpen(false)} className="p-2 hover:bg-gray-100 rounded-full">
+            <button
+              onClick={() => setIsMobileOpen(false)}
+              className="p-2 hover:bg-gray-100 rounded-full"
+            >
               <X className="h-6 w-6" />
             </button>
           </div>
@@ -129,17 +135,21 @@ export function CategoryFilters({ categoryId, brands, currentFilters }: Category
         <div>
           <h3 className="font-semibold text-sm text-gray-700 mb-2">Sort By</h3>
           <select
-            value={filters.sortBy === "price" && filters.sortOrder === "asc" ? "price" :
-                    filters.sortBy === "price" && filters.sortOrder === "desc" ? "price_desc" :
-                    filters.sortBy || "createdAt"}
+            value={
+              filters.sortBy === "price" && filters.sortOrder === "asc"
+                ? "price"
+                : filters.sortBy === "price" && filters.sortOrder === "desc"
+                  ? "price_desc"
+                  : filters.sortBy || "createdAt"
+            }
             onChange={(e) => {
-              const value = e.target.value
+              const value = e.target.value;
               if (value === "price") {
-                setFilters({ ...filters, sortBy: "price", sortOrder: "asc" })
+                setFilters({ ...filters, sortBy: "price", sortOrder: "asc" });
               } else if (value === "price_desc") {
-                setFilters({ ...filters, sortBy: "price", sortOrder: "desc" })
+                setFilters({ ...filters, sortBy: "price", sortOrder: "desc" });
               } else {
-                setFilters({ ...filters, sortBy: value, sortOrder: "desc" })
+                setFilters({ ...filters, sortBy: value, sortOrder: "desc" });
               }
             }}
             className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -158,7 +168,9 @@ export function CategoryFilters({ categoryId, brands, currentFilters }: Category
             <h3 className="font-semibold text-sm text-gray-700 mb-2">Brand</h3>
             <select
               value={filters.brandId}
-              onChange={(e) => setFilters({ ...filters, brandId: e.target.value })}
+              onChange={(e) =>
+                setFilters({ ...filters, brandId: e.target.value })
+              }
               className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">All Brands</option>
@@ -173,14 +185,18 @@ export function CategoryFilters({ categoryId, brands, currentFilters }: Category
 
         {/* Price Range */}
         <div>
-          <h3 className="font-semibold text-sm text-gray-700 mb-2">Price Range</h3>
+          <h3 className="font-semibold text-sm text-gray-700 mb-2">
+            Price Range
+          </h3>
           <div className="flex gap-2">
             <div>
               <label className="text-xs text-gray-500">Min</label>
               <input
                 type="number"
                 value={filters.minPrice}
-                onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })}
+                onChange={(e) =>
+                  setFilters({ ...filters, minPrice: e.target.value })
+                }
                 placeholder="Min"
                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 min="0"
@@ -191,7 +207,9 @@ export function CategoryFilters({ categoryId, brands, currentFilters }: Category
               <input
                 type="number"
                 value={filters.maxPrice}
-                onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
+                onChange={(e) =>
+                  setFilters({ ...filters, maxPrice: e.target.value })
+                }
                 placeholder="Max"
                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 min="0"
@@ -225,18 +243,23 @@ export function CategoryFilters({ categoryId, brands, currentFilters }: Category
               Active Filters
             </h4>
             <div className="flex flex-wrap gap-2">
-              {filters.brandId && brands.find(b => b.id === filters.brandId) && (
-                <span className="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded-full flex items-center gap-1">
-                  Brand: {brands.find(b => b.id === filters.brandId)?.name}
-                  <button onClick={() => setFilters({ ...filters, brandId: "" })}>
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              )}
+              {filters.brandId &&
+                brands.find((b) => b.id === filters.brandId) && (
+                  <span className="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded-full flex items-center gap-1">
+                    Brand: {brands.find((b) => b.id === filters.brandId)?.name}
+                    <button
+                      onClick={() => setFilters({ ...filters, brandId: "" })}
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                )}
               {filters.minPrice && (
                 <span className="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded-full flex items-center gap-1">
                   Min: ${filters.minPrice}
-                  <button onClick={() => setFilters({ ...filters, minPrice: "" })}>
+                  <button
+                    onClick={() => setFilters({ ...filters, minPrice: "" })}
+                  >
                     <X className="h-3 w-3" />
                   </button>
                 </span>
@@ -244,7 +267,9 @@ export function CategoryFilters({ categoryId, brands, currentFilters }: Category
               {filters.maxPrice && (
                 <span className="px-2 py-1 text-xs bg-blue-50 text-blue-700 rounded-full flex items-center gap-1">
                   Max: ${filters.maxPrice}
-                  <button onClick={() => setFilters({ ...filters, maxPrice: "" })}>
+                  <button
+                    onClick={() => setFilters({ ...filters, maxPrice: "" })}
+                  >
                     <X className="h-3 w-3" />
                   </button>
                 </span>
@@ -264,5 +289,5 @@ export function CategoryFilters({ categoryId, brands, currentFilters }: Category
         )}
       </div>
     </>
-  )
+  );
 }

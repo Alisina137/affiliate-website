@@ -3,6 +3,9 @@
 import { db } from "@/lib/db";
 import type { Prisma } from "@prisma/client";
 
+type GroupedResult = { country: string | null; _count: number };
+type DeviceGroupedResult = { device: string | null; _count: number };
+
 export const affiliateClickService = {
   // ============================================
   // GET CLICKS FOR A LINK
@@ -167,31 +170,40 @@ export const affiliateClickService = {
         },
       }),
 
-      // Clicks by country
+      // Clicks by country - Fixed with orderBy
       db.affiliateClick.groupBy({
         by: ["country"],
         where,
         _count: true,
+        orderBy: {
+          _count: {
+            country: "desc",
+          },
+        },
         take: 10,
       }),
 
-      // Clicks by device
+      // Clicks by device - Fixed with orderBy
       db.affiliateClick.groupBy({
         by: ["device"],
         where,
         _count: true,
+        orderBy: {
+          _count: {
+            device: "desc",
+          },
+        },
       }),
     ]);
 
-    /*
-     * Prisma versions can differ in their generated typing for
-     * groupBy().orderBy._count. Instead of relying on
-     * `_count: { _all: "desc" }`, sort the results here.
-     */
+    // Sort the results with proper typing
+    const sortedByCountry = (byCountry as unknown as GroupedResult[]).sort(
+      (a, b) => (b._count || 0) - (a._count || 0),
+    );
 
-    const sortedByCountry = [...byCountry].sort((a, b) => b._count - a._count);
-
-    const sortedByDevice = [...byDevice].sort((a, b) => b._count - a._count);
+    const sortedByDevice = (byDevice as unknown as DeviceGroupedResult[]).sort(
+      (a, b) => (b._count || 0) - (a._count || 0),
+    );
 
     return {
       totalClicks: total,

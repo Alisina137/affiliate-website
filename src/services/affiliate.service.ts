@@ -28,9 +28,9 @@ export const affiliateService = {
       where,
       orderBy: { priority: "desc" },
       include: {
-        merchant: {
+        product: {
           include: {
-            program: true,
+            brand: true,
           },
         },
       },
@@ -49,9 +49,9 @@ export const affiliateService = {
       where,
       orderBy: { priority: "desc" },
       include: {
-        merchant: {
+        product: {
           include: {
-            program: true,
+            brand: true,
           },
         },
       },
@@ -103,11 +103,6 @@ export const affiliateService = {
               brand: true,
             },
           },
-          merchant: {
-            include: {
-              program: true,
-            },
-          },
         },
         orderBy: { [sortBy]: sortOrder },
         skip: offset,
@@ -130,10 +125,9 @@ export const affiliateService = {
     return db.affiliateLink.findUnique({
       where: { id },
       include: {
-        product: true,
-        merchant: {
+        product: {
           include: {
-            program: true,
+            brand: true,
           },
         },
       },

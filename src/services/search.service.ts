@@ -71,7 +71,7 @@ export const searchService = {
     let guideResults: SearchResult[] = []
     let brandResults: SearchResult[] = []
     let categoryResults: SearchResult[] = []
-    let articleResults: SearchResult[] = []
+    const articleResults: SearchResult[] = []
 
     // Search products
     if (type === "all" || type === "product") {

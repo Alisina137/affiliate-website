@@ -1,8 +1,12 @@
 ﻿// src/app/search/page.tsx
 import { Suspense } from "react"
+import { Search } from "lucide-react"
 import { SearchResults } from "@/components/search/SearchResults"
 import { SearchFilters } from "@/components/search/SearchFilters"
 import { SearchInput } from "@/components/search/SearchInput"
+
+type SortBy = "relevance" | "createdAt" | "price" | "rating"
+type SortOrder = "asc" | "desc"
 
 interface SearchPageProps {
   searchParams: Promise<{
@@ -43,8 +47,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 <SearchFilters 
                   currentFilters={{
                     type: params.type || "all",
-                    sortBy: (params.sortBy as any) || "relevance",
-                    sortOrder: (params.sortOrder as any) || "desc",
+                    sortBy: (params.sortBy as SortBy) || "relevance",
+                    sortOrder: (params.sortOrder as SortOrder) || "desc",
                   }}
                 />
               </div>
@@ -55,8 +59,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                   limit={limit}
                   filters={{
                     type: params.type,
-                    sortBy: params.sortBy as any,
-                    sortOrder: params.sortOrder as any,
+                    sortBy: params.sortBy as SortBy,
+                    sortOrder: params.sortOrder as SortOrder,
                     categoryId: params.categoryId,
                     brandId: params.brandId,
                     minPrice: params.minPrice ? parseFloat(params.minPrice) : undefined,
@@ -70,7 +74,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           <div className="text-center py-16 text-gray-500">
             <Search className="h-16 w-16 text-gray-300 mx-auto mb-4" />
             <p className="text-lg">Enter a search term to find products, reviews, and guides.</p>
-            <p className="text-sm mt-2">Try searching for "laptops", "headphones", or "best gaming mouse"</p>
+            <p className="text-sm mt-2">Try searching for &quot;laptops&quot;, &quot;headphones&quot;, or &quot;best gaming mouse&quot;</p>
           </div>
         ) : (
           <div className="text-center py-16 text-gray-500">
