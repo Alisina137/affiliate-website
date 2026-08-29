@@ -1,0 +1,13 @@
+﻿# .dockerignore
+node_modules
+.next
+.git
+.github
+.env
+.env.local
+.env.production
+.env.staging
+*.log
+.DS_Store
+.vercel
+README.md
