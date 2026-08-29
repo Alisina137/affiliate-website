@@ -641,3 +641,21 @@ model Subscriber {
 
   @@map("subscribers")
 }
+// Add to prisma/schema.prisma (after Subscriber model)
+model AnalyticsEvent {
+  id        String    @id @default(cuid())
+  type      String    // page_view, affiliate_click, product_view, search, newsletter_signup, conversion
+  userId    String?
+  sessionId String?
+  pageUrl   String?
+  referrer  String?
+  userAgent String?   @db.Text
+  ipAddress String?
+  metadata  Json?     @default("{}")
+  createdAt DateTime  @default(now())
+
+  @@index([type, createdAt])
+  @@index([userId])
+  @@index([sessionId])
+  @@map("analytics_events")
+}
