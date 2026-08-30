@@ -1,50 +1,95 @@
-﻿// src/app/admin/brands/page.tsx
-import { auth } from "@/lib/auth"
-import { redirect } from "next/navigation"
+﻿/* eslint-disable react-hooks/set-state-in-effect */
+// src/app/admin/brands/page.tsx
+"use client"
+
+import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
-import { db } from "@/lib/db"
-import { Plus, Search, Edit, Trash2, Eye, Building2 } from "lucide-react"
+import Image from "next/image"
+import { Plus, Search, Edit, Trash2, Eye, Building2, Loader2 } from "lucide-react"
 
-export default async function AdminBrandsPage({
-  searchParams,
-}: {
-  searchParams: { page?: string; search?: string }
-}) {
-  const session = await auth()
-  if (!session?.user || session.user.role !== "ADMIN") {
-    redirect("/login")
-  }
+interface Brand {
+  id: string
+  name: string
+  slug: string
+  description: string | null
+  logo: string | null
+  website: string | null
+  isActive: boolean
+  niche: { id: string; name: string } | null
+  _count: { products: number }
+}
 
-  const page = parseInt(searchParams.page || "1")
+export default function AdminBrandsPage() {
+  const [brands, setBrands] = useState<Brand[]>([])
+  const [total, setTotal] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [deleting, setDeleting] = useState<string | null>(null)
+  const [search, setSearch] = useState("")
+  const [page, setPage] = useState(1)
   const limit = 10
-  const offset = (page - 1) * limit
-  const search = searchParams.search || ""
 
-  const where: any = {}
-  if (search) {
-    where.OR = [
-      { name: { contains: search, mode: "insensitive" } },
-      { description: { contains: search, mode: "insensitive" } },
-    ]
+  // Define fetchBrands with useCallback
+  const fetchBrands = useCallback(async () => {
+    setLoading(true)
+    try {
+      const response = await fetch(`/api/admin/brands?search=${search}&page=${page}&limit=${limit}`)
+      const data = await response.json()
+      setBrands(data.data || [])
+      setTotal(data.total || 0)
+    } catch (error) {
+      console.error("Error fetching brands:", error)
+    } finally {
+      setLoading(false)
+    }
+  }, [search, page])
+
+  // Now useEffect can safely depend on fetchBrands
+  useEffect(() => {
+    fetchBrands()
+  }, [fetchBrands])
+
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to delete "${name}"?`)) return
+
+    setDeleting(id)
+    try {
+      const response = await fetch(`/api/admin/brands/${id}`, {
+        method: "DELETE",
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        alert(data.error || "Failed to delete brand")
+        setDeleting(null)
+        return
+      }
+
+      // Refresh the list
+      fetchBrands()
+    } catch (error) {
+      console.error("Error deleting brand:", error)
+      alert("Failed to delete brand")
+    } finally {
+      setDeleting(null)
+    }
   }
 
-  const [brands, total] = await Promise.all([
-    db.brand.findMany({
-      where,
-      include: {
-        niche: true,
-        _count: {
-          select: { products: true },
-        },
-      },
-      orderBy: { name: "asc" },
-      skip: offset,
-      take: limit,
-    }),
-    db.brand.count({ where }),
-  ])
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    setPage(1)
+    fetchBrands()
+  }
 
   const totalPages = Math.ceil(total / limit)
+
+  if (loading && brands.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-100">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -55,7 +100,7 @@ export default async function AdminBrandsPage({
         </div>
         <Link
           href="/admin/brands/new"
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-[#1a1a2e] text-white rounded-lg hover:bg-[#2d2d44] transition-colors"
         >
           <Plus className="h-4 w-4" />
           New Brand
@@ -63,11 +108,12 @@ export default async function AdminBrandsPage({
       </div>
 
       {/* Search */}
-      <form className="flex gap-2">
+      <form onSubmit={handleSearch} className="flex gap-2">
         <input
           type="text"
           name="search"
-          defaultValue={search}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           placeholder="Search brands..."
           className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
@@ -104,13 +150,17 @@ export default async function AdminBrandsPage({
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   {brand.logo ? (
-                    <img
-                      src={brand.logo}
-                      alt={brand.name}
-                      className="w-12 h-12 object-contain rounded-lg bg-gray-50"
-                    />
+                    <div className="relative w-12 h-12 shrink-0">
+                      <Image
+                        src={brand.logo}
+                        alt={brand.name}
+                        fill
+                        className="object-contain rounded-lg bg-gray-50"
+                        sizes="48px"
+                      />
+                    </div>
                   ) : (
-                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center shrink-0">
                       <Building2 className="h-6 w-6 text-gray-400" />
                     </div>
                   )}
@@ -141,10 +191,16 @@ export default async function AdminBrandsPage({
                     <Edit className="h-4 w-4" />
                   </Link>
                   <button
-                    className="p-1.5 text-gray-400 hover:text-red-600 rounded hover:bg-gray-100 transition-colors"
+                    onClick={() => handleDelete(brand.id, brand.name)}
+                    disabled={deleting === brand.id}
+                    className="p-1.5 text-gray-400 hover:text-red-600 rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
                     title="Delete"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    {deleting === brand.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -185,17 +241,17 @@ export default async function AdminBrandsPage({
           </p>
           <div className="flex items-center gap-2">
             {Array.from({ length: totalPages }, (_, i) => (
-              <Link
+              <button
                 key={i}
-                href={`/admin/brands?page=${i + 1}${search ? `&search=${search}` : ""}`}
+                onClick={() => setPage(i + 1)}
                 className={`px-3 py-1 rounded-md text-sm ${
                   page === i + 1
-                    ? "bg-blue-600 text-white"
+                    ? "bg-[#1a1a2e] text-white"
                     : "hover:bg-gray-100"
                 }`}
               >
                 {i + 1}
-              </Link>
+              </button>
             ))}
           </div>
         </div>

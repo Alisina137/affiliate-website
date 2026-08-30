@@ -1,344 +1,253 @@
-﻿// src/services/ai-generation.service.ts
+﻿// src/services/ai-generation.service.ts (full updated file)
+export interface GenerationRequest {
+  contentType: string
+  topic: string
+  category?: string
+  products?: string[]
+  audience?: string
+  keywords?: string[]
+  instructions?: string
+  tone?: string
+  depth?: string
+}
 
-import { db } from "@/lib/db";
-import type { Prisma } from "@prisma/client";
-
-type AIGenerationCreateInput = {
-  userId: string;
-  contentType: string;
-  contentId?: string;
-  operation: string;
-  model: string;
-  promptVersion?: string;
-  input: Prisma.InputJsonValue;
-  output?: Prisma.InputJsonValue;
-  status?: string;
-  error?: string;
-  inputTokens?: number;
-  outputTokens?: number;
-  estimatedCost?: number;
-  duration?: number;
-};
-
-type AIGenerationUpdateInput = Partial<AIGenerationCreateInput>;
-
-type AIGenerationFilters = {
-  userId?: string;
-  contentType?: string;
-  status?: string;
-  operation?: string;
-  limit?: number;
-  offset?: number;
-  startDate?: Date;
-  endDate?: Date;
-  sortBy?: "createdAt" | "updatedAt" | "status" | "contentType" | "operation";
-  sortOrder?: "asc" | "desc";
-};
-
-type AIGenerationWhere = {
-  userId?: string;
-  contentType?: string;
-  status?: string;
-  operation?: string;
-  createdAt?: {
-    gte?: Date;
-    lte?: Date;
-  };
-};
+export interface GenerationResponse {
+  success: boolean
+  data?: any
+  error?: string
+  generationId?: string
+}
 
 export const aiGenerationService = {
-  /**
-   * Create a new AI generation record.
-   */
-  async create(data: AIGenerationCreateInput) {
-    return db.aIGeneration.create({
-      data: {
-        userId: data.userId,
-        contentType: data.contentType,
-        contentId: data.contentId,
-        operation: data.operation,
-        model: data.model,
-        promptVersion: data.promptVersion,
-        input: data.input,
-        output: data.output,
-        status: data.status ?? "PENDING",
-        error: data.error,
-        inputTokens: data.inputTokens,
-        outputTokens: data.outputTokens,
-        estimatedCost: data.estimatedCost,
-        duration: data.duration,
-      },
-    });
+  async generateContent(request: GenerationRequest): Promise<GenerationResponse> {
+    try {
+      const apiKey = process.env.GOOGLE_GEMINI_API_KEY || process.env.CEREBRAS_API_KEY
+      
+      if (!apiKey) {
+        return {
+          success: false,
+          error: "No API key found. Please add GOOGLE_GEMINI_API_KEY to your .env file."
+        }
+      }
+
+      const prompt = this.buildPrompt(request)
+
+      // Try Gemini
+      if (process.env.GOOGLE_GEMINI_API_KEY) {
+        return await this.callGemini(prompt, apiKey)
+      }
+
+      // Fallback to Cerebras
+      if (process.env.CEREBRAS_API_KEY) {
+        return await this.callCerebras(prompt, apiKey)
+      }
+
+      return {
+        success: false,
+        error: "No valid AI provider configured."
+      }
+
+    } catch (error) {
+      console.error("AI Generation error:", error)
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to generate content",
+      }
+    }
   },
 
-  /**
-   * Update an existing AI generation record.
-   */
-  async update(id: string, data: AIGenerationUpdateInput) {
-    return db.aIGeneration.update({
-      where: { id },
-      data: {
-        ...(data.userId !== undefined && { userId: data.userId }),
-        ...(data.contentType !== undefined && {
-          contentType: data.contentType,
-        }),
-        ...(data.contentId !== undefined && {
-          contentId: data.contentId,
-        }),
-        ...(data.operation !== undefined && {
-          operation: data.operation,
-        }),
-        ...(data.model !== undefined && {
-          model: data.model,
-        }),
-        ...(data.promptVersion !== undefined && {
-          promptVersion: data.promptVersion,
-        }),
-        ...(data.input !== undefined && {
-          input: data.input,
-        }),
-        ...(data.output !== undefined && {
-          output: data.output,
-        }),
-        ...(data.status !== undefined && {
-          status: data.status,
-        }),
-        ...(data.error !== undefined && {
-          error: data.error,
-        }),
-        ...(data.inputTokens !== undefined && {
-          inputTokens: data.inputTokens,
-        }),
-        ...(data.outputTokens !== undefined && {
-          outputTokens: data.outputTokens,
-        }),
-        ...(data.estimatedCost !== undefined && {
-          estimatedCost: data.estimatedCost,
-        }),
-        ...(data.duration !== undefined && {
-          duration: data.duration,
-        }),
-      },
-    });
+  buildPrompt(request: GenerationRequest): string {
+    let prompt = `Generate a ${request.contentType.toLowerCase()} about "${request.topic}".\n\n`
+    
+    if (request.category) {
+      prompt += `Category: ${request.category}\n`
+    }
+    if (request.products && request.products.length > 0) {
+      prompt += `Products: ${request.products.join(", ")}\n`
+    }
+    if (request.audience) {
+      prompt += `Target Audience: ${request.audience}\n`
+    }
+    if (request.keywords && request.keywords.length > 0) {
+      prompt += `Keywords: ${request.keywords.join(", ")}\n`
+    }
+    if (request.instructions) {
+      prompt += `Additional Instructions: ${request.instructions}\n`
+    }
+    prompt += `\nTone: ${request.tone || "Expert"}`
+    prompt += `\nDepth: ${request.depth || "Deep"}`
+    
+    prompt += `\n\nReturn ONLY valid JSON with these fields:\n`
+    prompt += this.getSchemaForContentType(request.contentType)
+    prompt += `\n\nDO NOT include any text outside the JSON. Return ONLY the JSON object.`
+    return prompt
   },
 
-  /**
-   * Get a single generation by ID.
-   */
-  async getById(id: string) {
-    return db.aIGeneration.findUnique({
-      where: { id },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
+  getSchemaForContentType(contentType: string): string {
+    switch (contentType) {
+      case "REVIEW":
+        return `{
+  "title": "string",
+  "seoTitle": "string",
+  "metaDescription": "string",
+  "excerpt": "string",
+  "introduction": "string",
+  "bestFor": "string",
+  "pros": ["string"],
+  "cons": ["string"],
+  "content": "string",
+  "verdict": "string",
+  "faq": [{"question": "string", "answer": "string"}],
+  "cta": "string"
+}`
+      case "COMPARISON":
+        return `{
+  "title": "string",
+  "seoTitle": "string",
+  "metaDescription": "string",
+  "excerpt": "string",
+  "introduction": "string",
+  "products": [{"name": "string", "strengths": ["string"], "weaknesses": ["string"]}],
+  "winner": "string",
+  "winnerExplanation": "string",
+  "content": "string",
+  "faq": [{"question": "string", "answer": "string"}]
+}`
+      default:
+        return `{
+  "title": "string",
+  "seoTitle": "string",
+  "metaDescription": "string",
+  "excerpt": "string",
+  "introduction": "string",
+  "content": "string",
+  "faq": [{"question": "string", "answer": "string"}]
+}`
+    }
+  },
+
+  async callGemini(prompt: string, apiKey: string): Promise<GenerationResponse> {
+    try {
+      console.log("🚀 Calling Gemini API with gemini-2.5-flash...")
+      
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ 
+              parts: [{ 
+                text: prompt 
+              }] 
+            }],
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 4096,
+            }
+          })
+        }
+      )
+
+      console.log(`📡 Gemini API response status: ${response.status}`)
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error("❌ Gemini API error:", errorText)
+        return {
+          success: false,
+          error: `Gemini API error (${response.status}): ${errorText.substring(0, 200)}`
+        }
+      }
+
+      const data = await response.json()
+      console.log("✅ Gemini API success!")
+      
+      const content = data.candidates[0].content.parts[0].text
+      const parsedData = this.parseResponse(content)
+
+      return {
+        success: true,
+        data: parsedData,
+      }
+    } catch (error) {
+      console.error("❌ Gemini API error:", error)
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Gemini API failed"
+      }
+    }
+  },
+
+  async callCerebras(prompt: string, apiKey: string): Promise<GenerationResponse> {
+    try {
+      console.log("🚀 Calling Cerebras API...")
+      
+      const response = await fetch("https://api.cerebras.ai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`,
         },
-      },
-    });
-  },
-
-  /**
-   * Get generations with filtering and pagination.
-   */
-  async getAll(params?: AIGenerationFilters) {
-    const {
-      userId,
-      contentType,
-      status,
-      operation,
-      limit = 20,
-      offset = 0,
-      startDate,
-      endDate,
-      sortBy = "createdAt",
-      sortOrder = "desc",
-    } = params ?? {};
-
-    const safeLimit = Math.max(1, Math.min(limit, 100));
-    const safeOffset = Math.max(0, offset);
-
-    const where: AIGenerationWhere = {};
-
-    if (userId) {
-      where.userId = userId;
-    }
-
-    if (contentType) {
-      where.contentType = contentType;
-    }
-
-    if (status) {
-      where.status = status;
-    }
-
-    if (operation) {
-      where.operation = operation;
-    }
-
-    if (startDate || endDate) {
-      where.createdAt = {};
-
-      if (startDate) {
-        where.createdAt.gte = startDate;
-      }
-
-      if (endDate) {
-        where.createdAt.lte = endDate;
-      }
-    }
-
-    const [data, total] = await Promise.all([
-      db.aIGeneration.findMany({
-        where,
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
+        body: JSON.stringify({
+          model: "llama3.1-8b",
+          messages: [
+            {
+              role: "system",
+              content: "You are a professional content writer. Return ONLY valid JSON.",
             },
-          },
-        },
-        orderBy: {
-          [sortBy]: sortOrder,
-        },
-        skip: safeOffset,
-        take: safeLimit,
-      }),
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+          temperature: 0.7,
+          max_tokens: 4096,
+        }),
+      })
 
-      db.aIGeneration.count({
-        where,
-      }),
-    ]);
-
-    return {
-      data,
-      total,
-      page: Math.floor(safeOffset / safeLimit) + 1,
-      limit: safeLimit,
-      totalPages: Math.ceil(total / safeLimit),
-    };
-  },
-
-  /**
-   * Get all generations belonging to a specific content item.
-   */
-  async getByContent(contentId: string, contentType: string) {
-    return db.aIGeneration.findMany({
-      where: {
-        contentId,
-        contentType,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-      },
-    });
-  },
-
-  /**
-   * Get AI generation statistics.
-   */
-  async getStats(params?: {
-    userId?: string;
-    contentType?: string;
-    startDate?: Date;
-    endDate?: Date;
-  }) {
-    const { userId, contentType, startDate, endDate } = params ?? {};
-
-    const where: AIGenerationWhere = {};
-
-    if (userId) {
-      where.userId = userId;
-    }
-
-    if (contentType) {
-      where.contentType = contentType;
-    }
-
-    if (startDate || endDate) {
-      where.createdAt = {};
-
-      if (startDate) {
-        where.createdAt.gte = startDate;
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error("❌ Cerebras API error:", errorText)
+        return {
+          success: false,
+          error: `Cerebras API error (${response.status}): ${errorText.substring(0, 200)}`
+        }
       }
 
-      if (endDate) {
-        where.createdAt.lte = endDate;
+      const data = await response.json()
+      console.log("✅ Cerebras API success!")
+      
+      const content = data.choices[0].message.content
+      const parsedData = this.parseResponse(content)
+
+      return {
+        success: true,
+        data: parsedData,
+      }
+    } catch (error) {
+      console.error("❌ Cerebras API error:", error)
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Cerebras API failed"
       }
     }
-
-    const [total, successful, failed, cost] = await Promise.all([
-      db.aIGeneration.count({
-        where,
-      }),
-
-      db.aIGeneration.count({
-        where: {
-          ...where,
-          status: "SUCCESS",
-        },
-      }),
-
-      db.aIGeneration.count({
-        where: {
-          ...where,
-          status: "FAILED",
-        },
-      }),
-
-      db.aIGeneration.aggregate({
-        where,
-        _sum: {
-          estimatedCost: true,
-        },
-      }),
-    ]);
-
-    return {
-      totalGenerations: total,
-      successfulGenerations: successful,
-      failedGenerations: failed,
-      successRate: total > 0 ? (successful / total) * 100 : 0,
-      totalCost: cost._sum.estimatedCost ?? 0,
-    };
   },
 
-  /**
-   * Get total successful AI generation cost.
-   */
-  async getTotalCost(userId?: string) {
-    const where: AIGenerationWhere = {
-      status: "SUCCESS",
-    };
-
-    if (userId) {
-      where.userId = userId;
+  parseResponse(response: string): any {
+    try {
+      const jsonMatch = response.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[0])
+      }
+      try {
+        return JSON.parse(response)
+      } catch {
+        return { content: response }
+      }
+    } catch (error) {
+      console.error("Failed to parse AI response:", error)
+      return { content: response }
     }
-
-    const result = await db.aIGeneration.aggregate({
-      where,
-      _sum: {
-        estimatedCost: true,
-      },
-      _count: true,
-    });
-
-    return {
-      totalCost: result._sum.estimatedCost ?? 0,
-      totalGenerations: result._count,
-    };
   },
-};
+}

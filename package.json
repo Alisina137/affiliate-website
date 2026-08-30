@@ -34,6 +34,9 @@
     "health": "npx tsx scripts/monitor.ts",
     "health:watch": "npx tsx scripts/monitor.ts --watch"
   },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "dependencies": {
     "@auth/core": "^0.41.3",
     "@auth/prisma-adapter": "^2.11.3",

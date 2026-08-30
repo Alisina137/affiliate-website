@@ -2,7 +2,7 @@
 "use client"
 
 import { useState } from "react"
-import { Mail, CheckCircle, XCircle, Loader2 } from "lucide-react"
+import { Mail, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
 
 export function NewsletterSignup() {
   const [email, setEmail] = useState("")
@@ -23,10 +23,10 @@ export function NewsletterSignup() {
     setMessage("")
 
     try {
-      const response = await fetch("/api/newsletter", {
+      const response = await fetch("/api/newsletter/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, name }),
+        body: JSON.stringify({ email, name, source: "homepage" }),
       })
 
       const data = await response.json()
@@ -46,73 +46,71 @@ export function NewsletterSignup() {
   }
 
   return (
-    <div className="bg-linear-to-r from-blue-600 to-indigo-700 rounded-2xl p-8 md:p-12 text-white">
-      <div className="max-w-3xl mx-auto text-center">
-        <div className="inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-1.5 mb-4">
-          <Mail className="h-4 w-4" />
-          <span className="text-sm font-medium">Newsletter</span>
+    <div className="max-w-3xl mx-auto text-center px-4 sm:px-0">
+      <div className="inline-flex items-center gap-2 border border-white/10 rounded-full px-3 sm:px-4 py-1 sm:py-1.5 mb-3 sm:mb-4">
+        <Mail className="h-3 w-3 sm:h-4 sm:w-4 text-white/60" />
+        <span className="text-xs sm:text-sm text-white/60">Stay in the loop</span>
+      </div>
+
+      <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 sm:mb-3">
+        Get the best products delivered
+      </h3>
+      <p className="text-sm sm:text-base text-white/60 mb-5 sm:mb-6 max-w-lg mx-auto leading-relaxed px-2">
+        Subscribe to receive our latest reviews, comparisons, and buying guides.
+        No spam. Unsubscribe anytime.
+      </p>
+
+      <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 max-w-xl mx-auto">
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Your name (optional)"
+            className="flex-1 px-3 sm:px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/30 transition-colors text-sm sm:text-base min-h-[48px]"
+          />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email address"
+            required
+            className="flex-1 px-3 sm:px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/30 transition-colors text-sm sm:text-base min-h-[48px]"
+          />
+          <button
+            type="submit"
+            disabled={status === "loading"}
+            className="px-4 sm:px-6 py-3 bg-white text-[#1a1a2e] font-medium rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 min-h-[48px] min-w-[100px]"
+          >
+            {status === "loading" ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-sm">Subscribing...</span>
+              </>
+            ) : (
+              "Subscribe"
+            )}
+          </button>
         </div>
 
-        <h3 className="text-2xl md:text-3xl font-bold mb-3">
-          Subscribe to Our Newsletter
-        </h3>
-        <p className="text-blue-100 mb-6 max-w-lg mx-auto">
-          Get the latest reviews, comparisons, and buying guides delivered straight to your inbox.
-        </p>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Your name (optional)"
-              className="flex-1 px-4 py-3 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white/50"
-            />
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Your email address"
-              required
-              className="flex-1 px-4 py-3 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-white/50"
-            />
-            <button
-              type="submit"
-              disabled={status === "loading"}
-              className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors disabled:opacity-70 flex items-center justify-center gap-2 min-w-30"
-            >
-              {status === "loading" ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Subscribing...
-                </>
-              ) : (
-                "Subscribe"
-              )}
-            </button>
+        {status === "success" && (
+          <div className="flex items-center justify-center gap-2 text-emerald-400 bg-emerald-500/10 rounded-lg px-3 sm:px-4 py-2 max-w-xl mx-auto text-sm">
+            <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span>{message}</span>
           </div>
+        )}
 
-          {/* Status Messages */}
-          {status === "success" && (
-            <div className="flex items-center justify-center gap-2 text-green-200 bg-green-900/30 rounded-lg px-4 py-2">
-              <CheckCircle className="h-5 w-5" />
-              <span>{message}</span>
-            </div>
-          )}
+        {status === "error" && (
+          <div className="flex items-center justify-center gap-2 text-red-400 bg-red-500/10 rounded-lg px-3 sm:px-4 py-2 max-w-xl mx-auto text-sm">
+            <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span>{message}</span>
+          </div>
+        )}
 
-          {status === "error" && (
-            <div className="flex items-center justify-center gap-2 text-red-200 bg-red-900/30 rounded-lg px-4 py-2">
-              <XCircle className="h-5 w-5" />
-              <span>{message}</span>
-            </div>
-          )}
-
-          <p className="text-xs text-blue-200 opacity-80">
-            We respect your privacy. Unsubscribe at any time.
-          </p>
-        </form>
-      </div>
+        <p className="text-xs text-white/30">
+          We respect your privacy. Unsubscribe at any time.
+        </p>
+      </form>
     </div>
   )
 }

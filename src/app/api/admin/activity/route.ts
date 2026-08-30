@@ -1,119 +1,114 @@
 ﻿// src/app/api/admin/activity/route.ts
-import { NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
-import { db } from "@/lib/db"
+import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
 
-export async function GET() {
+interface Activity {
+  id: string;
+  type: string;
+  action: string;
+  title: string;
+  url?: string;
+  timestamp: Date;
+  metadata?: Record<string, string | number | boolean | null>;
+  user?: {
+    name: string | null;
+    email: string;
+  };
+}
+
+export async function GET(request: Request) {
   try {
-    const session = await auth()
+    const session = await auth();
     if (!session?.user || session.user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get recent reviews
-    const recentReviews = await db.review.findMany({
-      where: { status: "PUBLISHED" },
-      orderBy: { publishedAt: "desc" },
-      take: 3,
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        publishedAt: true,
-      },
-    })
+    const { searchParams } = new URL(request.url);
+    const limit = parseInt(searchParams.get("limit") || "20");
+    const offset = parseInt(searchParams.get("offset") || "0");
 
-    // Get recent products
-    const recentProducts = await db.product.findMany({
-      where: { isActive: true },
-      orderBy: { createdAt: "desc" },
-      take: 3,
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        createdAt: true,
-      },
-    })
+    let activities: Activity[] = [];
+    let total = 0;
 
-    // Get recent subscribers
-    const recentSubscribers = await db.subscriber.findMany({
-      where: { isActive: true },
-      orderBy: { createdAt: "desc" },
-      take: 2,
-      select: {
-        id: true,
-        email: true,
-        createdAt: true,
-      },
-    })
+    try {
+      // Try to fetch from analytics events
+      const events = await db.analyticsEvent.findMany({
+        take: limit,
+        skip: offset,
+        orderBy: { createdAt: "desc" },
+      });
 
-    // Get recent affiliate clicks
-    const recentClicks = await db.affiliateLink.findMany({
-      where: { lastClicked: { not: null } },
-      orderBy: { lastClicked: "desc" },
-      take: 2,
-      select: {
-        id: true,
-        merchant: true,
-        product: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-          },
-        },
-        lastClicked: true,
-      },
-    })
+      // Get user info for each event
+      const userIds = events
+        .map((e) => e.userId)
+        .filter((id): id is string => id !== null);
+      const users =
+        userIds.length > 0
+          ? await db.user.findMany({
+              where: { id: { in: userIds } },
+              select: { id: true, name: true, email: true },
+            })
+          : [];
 
-    // Combine and format activities
-    const activities = [
-      ...recentReviews.map((r) => ({
-        id: `review-${r.id}`,
-        type: "review" as const,
-        action: "published" as const,
-        title: r.title,
-        url: `/reviews/${r.slug}`,
-        timestamp: r.publishedAt || new Date(),
-      })),
-      ...recentProducts.map((p) => ({
-        id: `product-${p.id}`,
-        type: "product" as const,
-        action: "created" as const,
-        title: p.name,
-        url: `/products/${p.slug}`,
-        timestamp: p.createdAt,
-      })),
-      ...recentSubscribers.map((s) => ({
-        id: `subscriber-${s.id}`,
-        type: "subscriber" as const,
-        action: "subscribed" as const,
-        title: s.email,
-        url: undefined,
-        timestamp: s.createdAt,
-      })),
-      ...recentClicks.map((c) => ({
-        id: `click-${c.id}`,
-        type: "affiliate" as const,
-        action: "clicked" as const,
-        title: `${c.merchant} - ${c.product?.name || "Product"}`,
-        url: c.product ? `/products/${c.product.slug}` : undefined,
-        timestamp: c.lastClicked || new Date(),
-      })),
-    ]
+      const userMap = new Map(users.map((u) => [u.id, u]));
 
-    // Sort by timestamp (newest first) and limit to 10
-    const sorted = activities
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-      .slice(0, 10)
+      activities = events.map((event) => {
+        const metadata = event.metadata as Record<
+          string,
+          string | number | boolean | null
+        > | null;
+        const user = event.userId ? userMap.get(event.userId) : undefined;
 
-    return NextResponse.json(sorted)
+        let title = event.pageUrl || "Unknown";
+        if (metadata && metadata.productId) {
+          title = `Product: ${metadata.productId}`;
+        }
+
+        return {
+          id: event.id,
+          type: event.type || "page_view",
+          action: event.type === "page_view" ? "viewed" : "clicked",
+          title: title,
+          url: event.pageUrl || "/",
+          timestamp: event.createdAt,
+          metadata: metadata || undefined,
+          user: user
+            ? {
+                name: user.name,
+                email: user.email,
+              }
+            : undefined,
+        };
+      });
+
+      total = await db.analyticsEvent.count();
+    } catch (error) {
+      console.log("AnalyticsEvent model not found or error:", error);
+      return NextResponse.json({
+        data: [],
+        total: 0,
+        page: 1,
+        limit: limit,
+        totalPages: 0,
+      });
+    }
+
+    return NextResponse.json({
+      data: activities,
+      total,
+      page: Math.floor(offset / limit) + 1,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    });
   } catch (error) {
-    console.error("Error fetching activity:", error)
-    return NextResponse.json(
-      { error: "Failed to fetch activity" },
-      { status: 500 }
-    )
+    console.error("Error fetching activities:", error);
+    return NextResponse.json({
+      data: [],
+      total: 0,
+      page: 1,
+      limit: 20,
+      totalPages: 0,
+    });
   }
 }

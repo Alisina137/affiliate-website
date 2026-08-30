@@ -1,72 +1,44 @@
 ﻿// src/components/layout/Footer.tsx
-"use client"
-
 import Link from "next/link"
-import { NewsletterSignup } from "@/components/home/NewsletterSignup"
 
 export function Footer() {
   return (
-    <footer className="border-t bg-gray-50">
-      <div className="container mx-auto px-4">
-        {/* Newsletter Section - Only visible on larger screens */}
-        <div className="hidden md:block py-8 border-b">
-          <NewsletterSignup />
+    <footer className="border-t border-gray-200/60 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8">
+          <div className="col-span-2 sm:col-span-1">
+            <h3 className="text-sm font-semibold text-[#1a1a2e] mb-3">Affiliate</h3>
+            <p className="text-xs sm:text-sm text-gray-500 leading-relaxed">
+              Research, compare, and find the best products.
+            </p>
+          </div>
+          <div>
+            <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Explore</h4>
+            <ul className="space-y-2">
+              <li><Link href="/categories" className="text-xs sm:text-sm text-gray-500 hover:text-[#1a1a2e] transition-colors touch-target inline-flex items-center">Categories</Link></li>
+              <li><Link href="/reviews" className="text-xs sm:text-sm text-gray-500 hover:text-[#1a1a2e] transition-colors touch-target inline-flex items-center">Reviews</Link></li>
+              <li><Link href="/guides" className="text-xs sm:text-sm text-gray-500 hover:text-[#1a1a2e] transition-colors touch-target inline-flex items-center">Guides</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Resources</h4>
+            <ul className="space-y-2">
+              <li><Link href="/about" className="text-xs sm:text-sm text-gray-500 hover:text-[#1a1a2e] transition-colors touch-target inline-flex items-center">About</Link></li>
+              <li><Link href="/editorial-policy" className="text-xs sm:text-sm text-gray-500 hover:text-[#1a1a2e] transition-colors touch-target inline-flex items-center">Editorial Policy</Link></li>
+              <li><Link href="/contact" className="text-xs sm:text-sm text-gray-500 hover:text-[#1a1a2e] transition-colors touch-target inline-flex items-center">Contact</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Legal</h4>
+            <ul className="space-y-2">
+              <li><Link href="/privacy" className="text-xs sm:text-sm text-gray-500 hover:text-[#1a1a2e] transition-colors touch-target inline-flex items-center">Privacy</Link></li>
+              <li><Link href="/terms" className="text-xs sm:text-sm text-gray-500 hover:text-[#1a1a2e] transition-colors touch-target inline-flex items-center">Terms</Link></li>
+              <li><Link href="/disclosure" className="text-xs sm:text-sm text-gray-500 hover:text-[#1a1a2e] transition-colors touch-target inline-flex items-center">Disclosure</Link></li>
+            </ul>
+          </div>
         </div>
-
-        <div className="py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {/* Brand */}
-            <div>
-              <h3 className="text-lg font-bold mb-4">Affiliate Platform</h3>
-              <p className="text-sm text-gray-600">
-                Helping you find the best products for your needs.
-              </p>
-            </div>
-
-            {/* Quick Links */}
-            <div>
-              <h4 className="font-semibold mb-4">Quick Links</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/about" className="text-gray-600 hover:text-blue-600">About</Link></li>
-                <li><Link href="/categories" className="text-gray-600 hover:text-blue-600">Categories</Link></li>
-                <li><Link href="/reviews" className="text-gray-600 hover:text-blue-600">Reviews</Link></li>
-                <li><Link href="/guides" className="text-gray-600 hover:text-blue-600">Guides</Link></li>
-              </ul>
-            </div>
-
-            {/* Support */}
-            <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link href="/contact" className="text-gray-600 hover:text-blue-600">Contact</Link></li>
-                <li><Link href="/privacy" className="text-gray-600 hover:text-blue-600">Privacy Policy</Link></li>
-                <li><Link href="/terms" className="text-gray-600 hover:text-blue-600">Terms of Service</Link></li>
-                <li><Link href="/disclosure" className="text-gray-600 hover:text-blue-600">Affiliate Disclosure</Link></li>
-              </ul>
-            </div>
-
-            {/* Newsletter - Mobile */}
-            <div className="md:hidden">
-              <h4 className="font-semibold mb-4">Newsletter</h4>
-              <p className="text-sm text-gray-600 mb-2">
-                Subscribe for updates and exclusive content.
-              </p>
-              <form className="flex gap-2">
-                <input
-                  type="email"
-                  placeholder="Your email"
-                  className="flex-1 px-3 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700">
-                  Subscribe
-                </button>
-              </form>
-            </div>
-          </div>
-
-          <div className="mt-8 pt-8 border-t text-center text-sm text-gray-600">
-            <p>&copy; {new Date().getFullYear()} Affiliate Platform. All rights reserved.</p>
-          </div>
+        <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-gray-200/60 text-center text-xs sm:text-sm text-gray-400">
+          &copy; {new Date().getFullYear()} Affiliate. All rights reserved.
         </div>
       </div>
     </footer>

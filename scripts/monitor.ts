@@ -1,7 +1,6 @@
 ﻿// scripts/monitor.ts
 import "dotenv/config"
 import { healthService } from "../src/services/health.service"
-import { logger } from "../src/lib/logger"
 
 async function monitor() {
   console.log("🔍 Running health check...")

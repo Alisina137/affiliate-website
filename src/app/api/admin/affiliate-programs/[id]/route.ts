@@ -1,142 +1,142 @@
 ﻿// src/app/api/admin/affiliate-programs/[id]/route.ts
-import { NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
-import { db } from "@/lib/db"
-import { z } from "zod"
+import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
 
-const merchantSchema = z.object({
-  id: z.string().optional(),
-  name: z.string().min(2),
-  slug: z.string().min(2),
-  description: z.string().optional(),
-  logo: z.string().url().optional(),
-  website: z.string().url().optional(),
-})
-
-const programSchema = z.object({
-  name: z.string().min(2),
-  slug: z.string().min(2),
-  description: z.string().optional(),
-  logo: z.string().url().optional(),
-  website: z.string().url().optional(),
-  commission: z.string().optional(),
-  cookieDuration: z.number().int().optional().nullable(),
-  isActive: z.boolean().default(true),
-  merchants: z.array(merchantSchema).optional(),
-})
-
-export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
+// GET - Get a single affiliate program by ID
+export async function GET(
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth()
+    const session = await auth();
     if (!session?.user || session.user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json()
-    const result = programSchema.safeParse(body)
+    const { id } = await params;
 
-    if (!result.success) {
+    const program = await db.affiliateProgram.findUnique({
+      where: { id },
+    });
+
+    if (!program) {
       return NextResponse.json(
-        { error: "Invalid input", details: result.error.issues },
-        { status: 400 }
-      )
+        { error: "Affiliate program not found" },
+        { status: 404 },
+      );
     }
 
-    const { merchants, ...programData } = result.data
-
-    // Update program
-    await db.affiliateProgram.update({
-      where: { id: params.id },
-      data: programData,
-    })
-
-    // Handle merchants
-    if (merchants) {
-      // Get existing merchants
-      const existingMerchants = await db.affiliateMerchant.findMany({
-        where: { programId: params.id },
-        select: { id: true },
-      })
-
-      const existingIds = existingMerchants.map(m => m.id)
-      const newIds = merchants.filter((m: any) => m.id).map((m: any) => m.id)
-      const idsToDelete = existingIds.filter(id => !newIds.includes(id))
-
-      // Delete removed merchants
-      if (idsToDelete.length > 0) {
-        await db.affiliateMerchant.deleteMany({
-          where: { id: { in: idsToDelete } },
-        })
-      }
-
-      // Update or create merchants
-      for (const merchant of merchants) {
-        if (merchant.id) {
-          await db.affiliateMerchant.update({
-            where: { id: merchant.id },
-            data: {
-              name: merchant.name,
-              slug: merchant.slug,
-              description: merchant.description,
-              logo: merchant.logo,
-              website: merchant.website,
-            },
-          })
-        } else {
-          await db.affiliateMerchant.create({
-            data: {
-              programId: params.id,
-              name: merchant.name,
-              slug: merchant.slug,
-              description: merchant.description,
-              logo: merchant.logo,
-              website: merchant.website,
-            },
-          })
-        }
-      }
-    }
-
-    const updatedProgram = await db.affiliateProgram.findUnique({
-      where: { id: params.id },
-      include: {
-        merchants: true,
-      },
-    })
-
-    return NextResponse.json({ success: true, data: updatedProgram })
+    return NextResponse.json({
+      success: true,
+      data: program,
+    });
   } catch (error) {
-    console.error("Error updating program:", error)
+    console.error("Error fetching affiliate program:", error);
     return NextResponse.json(
-      { error: "Failed to update program" },
-      { status: 500 }
-    )
+      { error: "Failed to fetch affiliate program" },
+      { status: 500 },
+    );
   }
 }
 
-export async function DELETE(
-  _request: Request,
-  { params }: { params: { id: string } }
+// PUT - Update an affiliate program
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth()
+    const session = await auth();
     if (!session?.user || session.user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    await db.affiliateProgram.delete({
-      where: { id: params.id },
-    })
+    const { id } = await params;
+    const body = await request.json();
+    const { name, slug, description, website, logo, isActive } = body;
 
-    return NextResponse.json({ success: true })
+    if (!name || !slug) {
+      return NextResponse.json(
+        { error: "Name and slug are required" },
+        { status: 400 },
+      );
+    }
+
+    // Check if slug already exists for another program
+    const existing = await db.affiliateProgram.findFirst({
+      where: {
+        slug,
+        id: { not: id },
+      },
+    });
+
+    if (existing) {
+      return NextResponse.json(
+        {
+          error: `Slug "${slug}" already exists. Please use a different slug.`,
+        },
+        { status: 400 },
+      );
+    }
+
+    const program = await db.affiliateProgram.update({
+      where: { id },
+      data: {
+        name,
+        slug,
+        description: description || null,
+        website: website || null,
+        logo: logo || null,
+        isActive: isActive ?? true,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      data: program,
+      message: "Affiliate program updated successfully",
+    });
   } catch (error) {
-    console.error("Error deleting program:", error)
+    console.error("Error updating affiliate program:", error);
     return NextResponse.json(
-      { error: "Failed to delete program" },
-      { status: 500 }
-    )
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to update affiliate program",
+      },
+      { status: 500 },
+    );
+  }
+}
+
+// DELETE - Delete an affiliate program
+export async function DELETE({ params }: { params: Promise<{ id: string }> }) {
+  try {
+    const session = await auth();
+    if (!session?.user || session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+
+    await db.affiliateProgram.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: "Affiliate program deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting affiliate program:", error);
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to delete affiliate program",
+      },
+      { status: 500 },
+    );
   }
 }

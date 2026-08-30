@@ -2,10 +2,10 @@
 "use client"
 
 import { useState } from "react"
-import { 
-  Sparkles, 
-  Loader2, 
-  CheckCircle, 
+import {
+  Sparkles,
+  Loader2,
+  CheckCircle,
   AlertCircle,
   FileText,
   Star,
@@ -18,10 +18,8 @@ import {
   ListChecks,
   Globe,
   Plus,
-  X
+  X,
 } from "lucide-react"
-import { ContentEditor } from "./ContentEditor"
-import { AIQualityControl } from "./AIQualityControl"
 
 type ContentType =
   | "REVIEW"
@@ -30,7 +28,7 @@ type ContentType =
   | "GUIDE"
   | "STATISTICS"
   | "PRODUCT"
-  | "CATEGORY" 
+  | "CATEGORY"
   | "BRAND"
   | "FAQ"
   | "SEO"
@@ -69,6 +67,26 @@ interface GenerationState {
   depth: string
 }
 
+interface FAQItem {
+  question: string
+  answer: string
+}
+
+interface GeneratedContent {
+  title?: string
+  seoTitle?: string
+  metaDescription?: string
+  excerpt?: string
+  introduction?: string
+  bestFor?: string
+  pros?: string[]
+  cons?: string[]
+  content?: string
+  verdict?: string
+  faq?: FAQItem[]
+  cta?: string
+}
+
 export function AIContentStudio() {
   const [formData, setFormData] = useState<GenerationState>({
     contentType: "",
@@ -84,9 +102,11 @@ export function AIContentStudio() {
 
   const [isGenerating, setIsGenerating] = useState(false)
   const [progress, setProgress] = useState<string[]>([])
-  const [generatedContent, setGeneratedContent] = useState<any>(null)
+  const [generatedContent, setGeneratedContent] = useState<GeneratedContent | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [productInput, setProductInput] = useState("")
+  const [isSaving, setIsSaving] = useState(false)
+  const [isRegenerating, setIsRegenerating] = useState(false)
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -135,44 +155,194 @@ export function AIContentStudio() {
     ]
 
     try {
-      // Simulate generation steps
+      const response = await fetch("/api/ai/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contentType: formData.contentType,
+          topic: formData.topic,
+          category: formData.category,
+          products: formData.products,
+          audience: formData.audience,
+          keywords: formData.keywords,
+          instructions: formData.instructions,
+          tone: formData.tone,
+          depth: formData.depth,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to generate content")
+      }
+
       for (let i = 0; i < steps.length; i++) {
         setProgress((prev) => [...prev, steps[i]])
-        await new Promise((resolve) => setTimeout(resolve, 500))
+        await new Promise((resolve) => setTimeout(resolve, 300))
       }
 
-      // Mock generated content
-      const mockContent = {
-        title: `Best ${formData.topic} in 2026`,
-        seoTitle: `Best ${formData.topic} 2026 - Top Picks & Reviews`,
-        metaDescription: `Discover the best ${formData.topic} with expert reviews and comparisons. Find the perfect product for your needs.`,
-        excerpt: `Looking for the best ${formData.topic}? Our team has researched and compared the top options to help you make an informed decision.`,
-        introduction: `Finding the right ${formData.topic} can be overwhelming with so many options available. In this guide, we'll break down the best choices for different needs and budgets.`,
-        bestFor: "Everyone looking for quality",
-        pros: ["Excellent quality", "Great value", "Durable build"],
-        cons: ["Premium price", "Limited availability"],
-        sections: [
-          { heading: "What to Look For", content: `When shopping for the best ${formData.topic}, consider factors like quality, price, and features.` },
-          { heading: "Top Picks", content: `We've selected the top ${formData.topic} products based on extensive research.` },
-        ],
-        faq: [
-          { question: `What is the best ${formData.topic}?`, answer: `The best ${formData.topic} depends on your specific needs and budget.` },
-          { question: `How much does a good ${formData.topic} cost?`, answer: "Prices typically range from $50 to $500 depending on features and quality." },
-        ],
-        cta: `Check out our top picks and find the perfect ${formData.topic} for you today!`,
-        contentBlocks: [
-          { type: "paragraph", content: `Welcome to our comprehensive guide on the best ${formData.topic} available in 2026.` },
-          { type: "heading", content: "Why Trust Our Recommendations" },
-          { type: "paragraph", content: "Our team of experts has spent countless hours researching and analyzing the market." },
-        ],
-      }
-
-      setGeneratedContent(mockContent)
+      setGeneratedContent(data.data)
     } catch (error) {
-      setError("Failed to generate content. Please try again.")
-      console.error("Generation error:", error)
+      setError(error instanceof Error ? error.message : "Failed to generate content")
     } finally {
       setIsGenerating(false)
+    }
+  }
+
+  // Save as Draft function
+  const handleSaveDraft = async () => {
+    if (!generatedContent) {
+      setError("No content to save. Please generate content first.")
+      return
+    }
+
+    setIsSaving(true)
+    setError(null)
+
+    try {
+      const response = await fetch("/api/ai/save-draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contentType: formData.contentType,
+          content: generatedContent,
+          topic: formData.topic,
+          category: formData.category,
+          products: formData.products,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to save draft")
+      }
+
+      alert(`✅ Draft saved successfully! (ID: ${data.data?.id || "created"})`)
+    } catch (error) {
+      console.error("Save draft error:", error)
+      setError(error instanceof Error ? error.message : "Failed to save draft")
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  // Preview function - Using data URL approach
+  const handlePreview = () => {
+    if (!generatedContent) {
+      setError("No content to preview. Please generate content first.")
+      return
+    }
+
+    // Build the HTML content
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${generatedContent.title || "Content Preview"}</title>
+          <meta charset="UTF-8">
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #1a1a2e; }
+            h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+            .meta { color: #666; font-size: 0.9rem; margin-bottom: 1.5rem; border-bottom: 1px solid #eee; padding-bottom: 1rem; }
+            .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+            .pros { background: #e8f5e9; padding: 1rem; border-radius: 8px; }
+            .cons { background: #fce4ec; padding: 1rem; border-radius: 8px; }
+            .faq-item { border-bottom: 1px solid #eee; padding: 1rem 0; }
+            .faq-item h4 { margin: 0; }
+            .cta { background: #1a1a2e; color: white; padding: 1rem 2rem; border-radius: 8px; display: inline-block; margin-top: 1.5rem; text-decoration: none; }
+          </style>
+        </head>
+        <body>
+          <h1>${generatedContent.title || "Untitled"}</h1>
+          ${generatedContent.metaDescription ? `<p class="meta">${generatedContent.metaDescription}</p>` : ""}
+          ${generatedContent.introduction ? `<p>${generatedContent.introduction}</p>` : ""}
+          ${generatedContent.bestFor ? `<p><strong>Best For:</strong> ${generatedContent.bestFor}</p>` : ""}
+          ${generatedContent.pros || generatedContent.cons ? `
+            <div class="pros-cons">
+              ${generatedContent.pros ? `<div class="pros"><h3>Pros</h3><ul>${generatedContent.pros.map((p: string) => `<li>${p}</li>`).join("")}</ul></div>` : ""}
+              ${generatedContent.cons ? `<div class="cons"><h3>Cons</h3><ul>${generatedContent.cons.map((c: string) => `<li>${c}</li>`).join("")}</ul></div>` : ""}
+            </div>
+          ` : ""}
+          ${generatedContent.content ? `<div>${generatedContent.content}</div>` : ""}
+          ${generatedContent.verdict ? `<h2>Verdict</h2><p>${generatedContent.verdict}</p>` : ""}
+          ${generatedContent.faq ? `
+            <h2>FAQ</h2>
+            ${generatedContent.faq.map((item: FAQItem) => `
+              <div class="faq-item">
+                <h4>Q: ${item.question}</h4>
+                <p>A: ${item.answer}</p>
+              </div>
+            `).join("")}
+          ` : ""}
+          ${generatedContent.cta ? `<a href="#" class="cta">${generatedContent.cta}</a>` : ""}
+        </body>
+      </html>
+    `
+
+    // Encode and open in new tab
+    const encodedHtml = encodeURIComponent(htmlContent)
+    const dataUrl = `data:text/html;charset=utf-8,${encodedHtml}`
+    window.open(dataUrl, "_blank")
+  }
+
+  // Regenerate function
+  const handleRegenerate = async () => {
+    if (!formData.contentType || !formData.topic) {
+      setError("Please select a content type and enter a topic")
+      return
+    }
+
+    setIsRegenerating(true)
+    setError(null)
+    setProgress([])
+    setGeneratedContent(null)
+
+    const steps = [
+      "Content brief",
+      "Outline",
+      "Title & SEO",
+      "Introduction",
+      "Main content",
+      "Pros & Cons",
+      "FAQ",
+      "CTA",
+    ]
+
+    try {
+      const response = await fetch("/api/ai/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contentType: formData.contentType,
+          topic: formData.topic,
+          category: formData.category,
+          products: formData.products,
+          audience: formData.audience,
+          keywords: formData.keywords.split(",").map((k: string) => k.trim()).filter(Boolean),
+          instructions: formData.instructions,
+          tone: formData.tone,
+          depth: formData.depth,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to regenerate content")
+      }
+
+      for (let i = 0; i < steps.length; i++) {
+        setProgress((prev) => [...prev, steps[i]])
+        await new Promise((resolve) => setTimeout(resolve, 300))
+      }
+
+      setGeneratedContent(data.data)
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Failed to regenerate content")
+    } finally {
+      setIsRegenerating(false)
     }
   }
 
@@ -204,7 +374,6 @@ export function AIContentStudio() {
         <h3 className="font-semibold text-lg mb-4">2. Enter Content Details</h3>
 
         <div className="space-y-4">
-          {/* Topic */}
           <div>
             <label htmlFor="topic" className="block text-sm font-medium text-gray-700 mb-1">
               Topic *
@@ -220,7 +389,6 @@ export function AIContentStudio() {
             />
           </div>
 
-          {/* Category */}
           <div>
             <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
               Category
@@ -240,7 +408,6 @@ export function AIContentStudio() {
             </select>
           </div>
 
-          {/* Products */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Products (optional)
@@ -288,7 +455,6 @@ export function AIContentStudio() {
             )}
           </div>
 
-          {/* Audience */}
           <div>
             <label htmlFor="audience" className="block text-sm font-medium text-gray-700 mb-1">
               Target Audience
@@ -304,7 +470,6 @@ export function AIContentStudio() {
             />
           </div>
 
-          {/* Keywords */}
           <div>
             <label htmlFor="keywords" className="block text-sm font-medium text-gray-700 mb-1">
               Keywords
@@ -320,7 +485,6 @@ export function AIContentStudio() {
             />
           </div>
 
-          {/* Instructions */}
           <div>
             <label htmlFor="instructions" className="block text-sm font-medium text-gray-700 mb-1">
               Additional Instructions
@@ -336,7 +500,6 @@ export function AIContentStudio() {
             />
           </div>
 
-          {/* Tone & Depth */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label htmlFor="tone" className="block text-sm font-medium text-gray-700 mb-1">
@@ -376,7 +539,6 @@ export function AIContentStudio() {
           </div>
         </div>
 
-        {/* Generate Button */}
         <div className="mt-6">
           <button
             onClick={handleGenerate}
@@ -423,33 +585,89 @@ export function AIContentStudio() {
       {/* Generated Content */}
       {generatedContent && (
         <div className="bg-white rounded-lg shadow-sm border p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-lg">3. Edit Generated Content</h3>
-            <div className="flex gap-2">
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                Save as Draft
+          <h3 className="font-semibold text-lg mb-4">3. Generated Content</h3>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                <div className="p-3 bg-gray-50 rounded-lg text-sm">{generatedContent.title || "N/A"}</div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">SEO Title</label>
+                <div className="p-3 bg-gray-50 rounded-lg text-sm">{generatedContent.seoTitle || "N/A"}</div>
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Meta Description</label>
+              <div className="p-3 bg-gray-50 rounded-lg text-sm">{generatedContent.metaDescription || "N/A"}</div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Introduction</label>
+              <div className="p-3 bg-gray-50 rounded-lg text-sm whitespace-pre-wrap">{generatedContent.introduction || "N/A"}</div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Pros</label>
+                <ul className="p-3 bg-gray-50 rounded-lg text-sm space-y-1">
+                  {generatedContent.pros && generatedContent.pros.length > 0 ? (
+                    generatedContent.pros.map((pro: string, i: number) => (
+                      <li key={i}>✓ {pro}</li>
+                    ))
+                  ) : (
+                    <li className="text-gray-400">No pros listed</li>
+                  )}
+                </ul>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Cons</label>
+                <ul className="p-3 bg-gray-50 rounded-lg text-sm space-y-1">
+                  {generatedContent.cons && generatedContent.cons.length > 0 ? (
+                    generatedContent.cons.map((con: string, i: number) => (
+                      <li key={i}>✗ {con}</li>
+                    ))
+                  ) : (
+                    <li className="text-gray-400">No cons listed</li>
+                  )}
+                </ul>
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">FAQ</label>
+              <div className="space-y-2">
+                {generatedContent.faq && generatedContent.faq.length > 0 ? (
+                  generatedContent.faq.map((item: FAQItem, i: number) => (
+                    <div key={i} className="p-3 bg-gray-50 rounded-lg text-sm">
+                      <p className="font-medium">Q: {item.question}</p>
+                      <p className="text-gray-600 mt-1">A: {item.answer}</p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-3 bg-gray-50 rounded-lg text-sm text-gray-400">No FAQ items</div>
+                )}
+              </div>
+            </div>
+            <div className="pt-4 border-t flex gap-3">
+              <button
+                onClick={handleSaveDraft}
+                disabled={isSaving}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+              >
+                {isSaving ? "Saving..." : "Save as Draft"}
               </button>
-              <button className="px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors">
+              <button
+                onClick={handlePreview}
+                className="px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors"
+              >
                 Preview
               </button>
+              <button
+                onClick={handleRegenerate}
+                disabled={isRegenerating}
+                className="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {isRegenerating ? "Regenerating..." : "Regenerate"}
+              </button>
             </div>
-          </div>
-          <ContentEditor
-            content={generatedContent}
-            onContentChange={setGeneratedContent}
-            contentType={formData.contentType as string}
-          />
-          <div className="mt-6">
-            <AIQualityControl
-              contentId="temp-id"
-              contentType={formData.contentType as string}
-              onPublish={() => {
-                console.log("Content published!")
-              }}
-              onSave={() => {
-                console.log("Content saved!")
-              }}
-            />
           </div>
         </div>
       )}
