@@ -5,6 +5,8 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { EditArticleForm } from "@/components/optimizer/EditArticleForm"
 
+
+export const dynamic = "force-dynamic"
 export default async function OptimizerArticlePage({
   params,
 }: {

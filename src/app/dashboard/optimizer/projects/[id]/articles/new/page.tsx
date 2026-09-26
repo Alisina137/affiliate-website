@@ -5,6 +5,8 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { CreateArticleForm } from "@/components/optimizer/CreateArticleForm"
 
+
+export const dynamic = "force-dynamic"
 export default async function NewOptimizerArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth()
   if (!session?.user?.id) redirect("/login")

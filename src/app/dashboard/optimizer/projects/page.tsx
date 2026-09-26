@@ -4,6 +4,8 @@ import { redirect } from "next/navigation"
 import Link from "next/link"
 import { Plus } from "lucide-react"
 
+
+export const dynamic = "force-dynamic"
 export default async function OptimizerProjectsPage() {
   const session = await auth()
   if (!session?.user?.id) redirect("/login")
