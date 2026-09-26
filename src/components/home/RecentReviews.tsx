@@ -30,30 +30,8 @@ export function RecentReviews() {
         setLoading(false)
       })
       .catch(() => {
-        setReviews([
-          {
-            id: "1",
-            title: "Best Laptop for Creatives",
-            slug: "best-laptop-creatives",
-            excerpt: "After weeks of testing, this is the ultimate creative powerhouse.",
-            rating: 4.9,
-            productName: "MacBook Pro 16-inch",
-            productSlug: "macbook-pro-16",
-            authorName: "Jane Smith",
-            publishedAt: "2026-08-25"
-          },
-          {
-            id: "2",
-            title: "The Perfect Noise-Canceling Headphones",
-            slug: "perfect-noise-canceling-headphones",
-            excerpt: "Industry-leading ANC that transforms your listening experience.",
-            rating: 4.8,
-            productName: "Sony WH-1000XM5",
-            productSlug: "sony-wh-1000xm5",
-            authorName: "Mike Johnson",
-            publishedAt: "2026-08-20"
-          }
-        ])
+        setFailed(true)
+        setReviews([])
         setLoading(false)
       })
   }, [])
