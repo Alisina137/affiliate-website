@@ -12,17 +12,17 @@ export function HeroSection() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    if (searchQuery.trim().length > 0) {
+    if (searchQuery.trim().length > 0 && !isLoading) {
       setIsLoading(true)
       router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
     }
   }
 
   return (
-    <section className="bg-[#f8f9fa] border-b border-gray-200/60">
+    <section className="border-b border-gray-200/60 bg-[#f8f9fa]" aria-labelledby="home-hero-title">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20 lg:py-28">
         <div className="max-w-3xl">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#1a1a2e] mb-3 sm:mb-4">
+          <h1 id="home-hero-title" className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[#1a1a2e] mb-3 sm:mb-4">
             Find the best <br />
             <span className="text-[#1a1a2e]/60">products, faster.</span>
           </h1>
@@ -31,12 +31,14 @@ export function HeroSection() {
             Curated by experts. Trusted by thousands.
           </p>
 
-          <form onSubmit={handleSearch} className="max-w-xl">
+          <form onSubmit={handleSearch} className="max-w-xl" role="search">
             <div className="flex flex-col sm:flex-row items-stretch bg-white border border-gray-200 rounded-lg overflow-hidden focus-within:border-[#1a1a2e] focus-within:ring-1 focus-within:ring-[#1a1a2e] transition-all search-shadow">
               <div className="flex items-center px-3 sm:px-4">
                 <Search className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 flex-shrink-0" />
                 <input
-                  type="text"
+                  type="search"
+                  aria-label="Search products and buying guides"
+                  autoComplete="off"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search for products..."
@@ -48,8 +50,8 @@ export function HeroSection() {
                 disabled={isLoading}
                 className="px-4 sm:px-6 py-3 sm:py-4 bg-[#1a1a2e] text-white font-medium hover:bg-[#2d2d44] transition-colors disabled:opacity-50 flex items-center justify-center gap-2 min-h-[48px] sm:min-h-[56px] btn-primary"
               >
-                {isLoading ? "Searching" : "Search"}
-                <ArrowRight className="h-4 w-4" />
+                {isLoading ? "Searching..." : "Search"}
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
           </form>
