@@ -1,10 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 
 export function AnalyzeArticleButton({ articleId, disabled }: { articleId: string; disabled: boolean }) {
-  const router = useRouter()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState("")
 
@@ -18,8 +16,6 @@ export function AnalyzeArticleButton({ articleId, disabled }: { articleId: strin
         setError(data.error || "Could not analyze this article.")
         return
       }
-      router.push(`/dashboard/optimizer/projects/${data.analysis.articleId ? "" : ""}`)
-      router.refresh()
       window.location.href = window.location.pathname + "/analysis"
     } catch {
       setError("Could not reach the server. Please try again.")
