@@ -28,26 +28,8 @@ export function LatestGuides() {
         setLoading(false)
       })
       .catch(() => {
-        setGuides([
-          {
-            id: "1",
-            title: "How to Choose a Laptop",
-            slug: "how-to-choose-a-laptop",
-            excerpt: "Everything you need to know before buying a laptop.",
-            introduction: "Choosing the right laptop can be overwhelming...",
-            authorName: "John Doe",
-            publishedAt: "2026-08-22"
-          },
-          {
-            id: "2",
-            title: "The Ultimate Guide to Wireless Headphones",
-            slug: "ultimate-guide-wireless-headphones",
-            excerpt: "Find the perfect headphones for your lifestyle.",
-            introduction: "Wireless headphones have come a long way...",
-            authorName: "Sarah Lee",
-            publishedAt: "2026-08-18"
-          }
-        ])
+        setFailed(true)
+        setGuides([])
         setLoading(false)
       })
   }, [])
