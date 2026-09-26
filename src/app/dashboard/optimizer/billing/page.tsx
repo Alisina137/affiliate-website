@@ -1,15 +1,23 @@
 import { auth } from "@/lib/auth"
+import { db } from "@/lib/db"
+import { stripeConfigured } from "@/lib/optimizer/billing/stripe"
 import { getOptimizerUsageSummary } from "@/lib/optimizer/entitlements"
 import { OPTIMIZER_PLANS } from "@/lib/optimizer/plans"
-import { redirect } from "next/navigation"
+import { BillingActions } from "@/components/optimizer/BillingActions"
 import Link from "next/link"
+import { redirect } from "next/navigation"
 
 export const dynamic = "force-dynamic"
 
 export default async function OptimizerBillingPage() {
   const session = await auth()
   if (!session?.user?.id) redirect("/login")
-  const summary = await getOptimizerUsageSummary(session.user.id)
+
+  const [summary, subscription] = await Promise.all([
+    getOptimizerUsageSummary(session.user.id),
+    db.optimizerSubscription.findUnique({ where: { userId: session.user.id } }),
+  ])
+  const billingConfigured = stripeConfigured()
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
@@ -30,6 +38,7 @@ export default async function OptimizerBillingPage() {
           <Usage label="Analyses" used={summary.usage.analyses} limit={summary.limits.analyses} />
           <Usage label="AI rewrites" used={summary.usage.optimizations} limit={summary.limits.optimizations} />
         </div>
+        {subscription?.cancelAtPeriodEnd && <p className="mt-4 text-sm text-amber-700">Your subscription is scheduled to cancel at the end of the current billing period.</p>}
       </section>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -42,9 +51,12 @@ export default async function OptimizerBillingPage() {
               <li>{plan.analyses} analyses/month</li>
               <li>{plan.optimizations.toLocaleString()} AI rewrites/month</li>
             </ul>
-            <div className="mt-6 rounded-lg bg-gray-50 p-3 text-xs leading-5 text-gray-500">
-              {key === summary.plan ? "Your current optimizer plan." : "Checkout is not enabled until a payment provider is configured."}
-            </div>
+            <BillingActions
+              plan={key}
+              current={key === summary.plan}
+              billingConfigured={billingConfigured}
+              hasCustomer={Boolean(subscription?.providerCustomerId)}
+            />
           </section>
         ))}
       </div>

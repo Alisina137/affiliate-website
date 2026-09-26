@@ -1,7 +1,7 @@
 # Affiliate — Project State
 
 ## Current phase
-Phase 6 — Plans, Usage Limits & Billing Foundations
+Phase 7 — Production Billing & Subscription Lifecycle
 
 ## Baseline
 Affiliate contains the existing publishing/CMS platform plus an isolated Affiliate Content & Monetization Optimizer SaaS area. Public CMS content remains separate from customer-owned optimizer projects and articles.
@@ -73,6 +73,21 @@ Affiliate contains the existing publishing/CMS platform plus an isolated Affilia
 - Unit coverage for approved plan limits.
 - Existing lowercase `settings` table was introspected and restored to the Prisma schema as `LegacySettings` with `@@map("settings")`, preserving its existing row during schema synchronization.
 
+### Phase 7 — Production Billing & Subscription Lifecycle
+- Server-only Stripe REST adapter with no browser exposure of secret credentials.
+- Authenticated Stripe Checkout creation for Starter, Pro, and Agency; the server owns plan-to-Price mapping.
+- Stripe Customer Portal sessions for existing billing customers.
+- Signed webhook verification with a five-minute timestamp tolerance and timing-safe HMAC comparison.
+- Paid entitlements are never granted from a browser redirect or checkout-success query parameter.
+- Subscription created/updated/deleted webhooks synchronize provider customer/subscription IDs, plan, status, billing period, and cancel-at-period-end.
+- Webhook processing re-fetches authoritative subscription state from Stripe before persistence to reduce out-of-order event risk.
+- Only configured Optimizer Stripe Price IDs can grant a paid Optimizer plan.
+- Existing paid/past-due customers are prevented from creating parallel Checkout subscriptions.
+- Billing UI enables checkout only when all required Stripe configuration is present and exposes Manage Billing for Stripe customers.
+- Free remains fully functional when Stripe is unconfigured.
+- Stripe signature and Price-ID mapping unit coverage added.
+- Billing setup and required environment variables documented in `docs/OPTIMIZER-BILLING.md`.
+
 ## Optimizer routes
 - /dashboard/optimizer
 - /dashboard/optimizer/billing
@@ -84,7 +99,7 @@ Affiliate contains the existing publishing/CMS platform plus an isolated Affilia
 - /dashboard/optimizer/projects/[id]/articles/[articleId]/analysis
 - /dashboard/optimizer/projects/[id]/articles/[articleId]/history
 - /dashboard/optimizer/projects/[id]/articles/[articleId]/optimize
-- /api/optimizer/usage
+- /api/optimizer/usage\n- /api/optimizer/billing/checkout\n- /api/optimizer/billing/portal\n- /api/optimizer/billing/webhook
 - /api/optimizer/projects
 - /api/optimizer/articles
 - /api/optimizer/articles/[id]
