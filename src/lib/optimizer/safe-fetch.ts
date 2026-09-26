@@ -1,5 +1,4 @@
 import { lookup } from "node:dns/promises"
-import type { LookupAddress } from "node:dns"
 import http from "node:http"
 import https from "node:https"
 import { isIP } from "node:net"
@@ -49,9 +48,9 @@ export async function resolvePublicAddress(hostname: string) {
     return { address: normalized, family: isIP(normalized) as 4 | 6 }
   }
 
-  let addresses: Awaited<ReturnType<typeof lookup>>
+  let addresses: Array<{ address: string; family: number }>
   try {
-    addresses = await lookup(normalized, { all: true, verbatim: true })
+    addresses = await lookup(normalized, { all: true, verbatim: true } as const)
   } catch {
     throw new SafeFetchError("The article host could not be resolved.", "DNS_FAILED")
   }
