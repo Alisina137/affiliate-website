@@ -71,7 +71,7 @@ Affiliate contains the existing publishing/CMS platform plus an isolated Affilia
 - Billing UI does not fake checkout: paid checkout remains disabled until a payment provider is configured.
 - No bundle discounts, shared credits, coupons, or cross-module subscriptions introduced.
 - Unit coverage for approved plan limits.
-- Database application remains gated by the pre-existing `settings` table drift; no destructive schema command is authorized.
+- Existing lowercase `settings` table was introspected and restored to the Prisma schema as `LegacySettings` with `@@map("settings")`, preserving its existing row during schema synchronization.
 
 ## Optimizer routes
 - /dashboard/optimizer
@@ -112,4 +112,4 @@ Affiliate contains the existing publishing/CMS platform plus an isolated Affilia
 - Admin optimizer analytics.
 
 ## Next phase
-Phase 7 should add **production payment-provider integration and subscription lifecycle synchronization** only after provider credentials/products are available and the existing database `settings` drift is safely reconciled.
+Phase 7 should add **production payment-provider integration and subscription lifecycle synchronization** only after provider credentials/products are available.
