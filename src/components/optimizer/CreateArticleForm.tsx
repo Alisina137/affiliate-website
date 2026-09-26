@@ -84,7 +84,7 @@ export function CreateArticleForm({ projectId }: { projectId: string }) {
           placeholder="https://example.com/article"
         />
         <span className="mt-1 block text-xs text-gray-500">
-          URL extraction is added in a later phase. For now, add the URL for reference and paste the article content below if available.
+          After saving, you can securely import content from this public URL. If the site blocks extraction, paste the article content manually.
         </span>
       </label>
 

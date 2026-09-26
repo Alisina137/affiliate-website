@@ -1,7 +1,7 @@
 # Affiliate — Project State
 
 ## Current phase
-Phase 2 — Article Ingestion & Management
+Phase 3 — Safe Article URL Extraction & Ingestion
 
 ## Baseline
 The repository contains the existing affiliate publishing/CMS platform plus the isolated Affiliate optimizer SaaS foundation from Phase 1. Existing public content, products, categories, affiliate links, admin tools, analytics, authentication, AI content infrastructure, tests, and deployment workflows remain preserved.
