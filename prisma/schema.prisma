@@ -812,3 +812,23 @@ model OptimizerSubscription {
   @@index([providerCustomerId])
   @@map("optimizer_subscriptions")
 }
+
+
+/// Legacy site-wide settings table preserved from the existing database.
+/// Keep mapped to the lowercase table so Prisma schema synchronization never drops existing settings data.
+model LegacySettings {
+  id              String   @id
+  siteName        String   @default("TechPulse")
+  siteDescription String   @default("Your pulse on the best in tech.")
+  defaultCurrency String   @default("USD")
+  logo            String?
+  favicon         String?
+  metaDescription String?
+  metaKeywords    String?
+  trackingCode    String?
+  socialLinks     Json?    @default("{}")
+  updatedAt       DateTime
+  createdAt       DateTime @default(now())
+
+  @@map("settings")
+}
