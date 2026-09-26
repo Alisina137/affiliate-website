@@ -89,12 +89,12 @@ export function HeroSection() {
         <div className="relative mx-auto flex w-full max-w-[680px] items-center justify-center lg:max-w-none" aria-hidden="true">
           <div className="absolute h-[70%] w-[70%] rounded-full bg-blue-500/20 blur-3xl" />
           <Image
-            src="/images/electronics-hologram.svg"
+            src="/images/electronics-hologram.png"
             alt=""
             width={900}
             height={700}
             priority
-            className="relative h-auto w-full select-none drop-shadow-[0_0_30px_rgba(59,130,246,0.28)]"
+            className="relative h-auto w-full select-none rounded-2xl object-contain mix-blend-screen drop-shadow-[0_0_34px_rgba(59,130,246,0.32)]"
           />
         </div>
       </div>
