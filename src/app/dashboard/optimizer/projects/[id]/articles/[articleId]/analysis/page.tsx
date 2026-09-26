@@ -3,6 +3,7 @@ import { db } from "@/lib/db"
 import { notFound, redirect } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
+import { CompetitorIntelligence } from "@/components/optimizer/CompetitorIntelligence"
 
 export const dynamic = "force-dynamic"
 
@@ -96,6 +97,8 @@ export default async function OptimizerAnalysisPage({ params }: { params: Promis
           ))}
         </div>
       </section>
+
+      <CompetitorIntelligence articleId={articleId} />
 
       <div className="mt-8">
         <Link href={`/dashboard/optimizer/projects/${id}/articles/${articleId}/history`} className="text-sm font-semibold text-[#1a1a2e] underline">View analysis history</Link>

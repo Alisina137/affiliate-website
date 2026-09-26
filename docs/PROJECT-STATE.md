@@ -1,7 +1,7 @@
 # Affiliate — Project State
 
 ## Current phase
-Phase 8 — Production AI Provider & Optimization Safeguards
+Phase 9 — Competitor Intelligence & Content Gaps
 
 ## Baseline
 Affiliate contains the existing publishing/CMS platform plus an isolated Affiliate Content & Monetization Optimizer SaaS area. Public CMS content remains separate from customer-owned optimizer projects and articles.
@@ -101,6 +101,19 @@ Affiliate contains the existing publishing/CMS platform plus an isolated Affilia
 - Unit coverage added for provider selection, structured remote output/token metadata, and prompt-injection/factuality boundaries.
 - Production AI configuration documented in `docs/OPTIMIZER-AI.md`.
 
+### Phase 9 — Competitor Intelligence & Content Gaps
+- Manual competitor-URL intelligence workflow added to the article analysis screen.
+- Up to five user-supplied public competitor pages can be analyzed per request.
+- Competitor fetching reuses the hardened safe-fetch layer: HTTP/HTTPS only, DNS/private-network blocking, redirect revalidation, timeout, response-size, and HTML content-type controls.
+- Extracts observable competitor signals only: readable word count, H2/H3 headings, table presence, FAQ language, pros/cons, buying-guide language, comparison language, and prominent terms.
+- Generates evidence-backed topic/structure gap prompts by comparing supplied pages with the user's stored article.
+- External observations are explicitly separated from the deterministic six-category on-page scores.
+- The UI clearly states that supplied URLs are not claimed to be live SERP rankings.
+- No search volume, traffic, domain authority, revenue, conversion rate, or ranking position is invented or inferred.
+- Competitor analysis usage events are recorded.
+- Unit coverage verifies URL requirement and inherited private-network protection.
+- No paid SERP provider, new dependency, or schema change is required for this baseline; a future SERP provider can feed the same intelligence layer.
+
 ## Optimizer routes
 - /dashboard/optimizer
 - /dashboard/optimizer/billing
@@ -117,7 +130,7 @@ Affiliate contains the existing publishing/CMS platform plus an isolated Affilia
 - /api/optimizer/articles
 - /api/optimizer/articles/[id]
 - /api/optimizer/articles/[id]/import
-- /api/optimizer/articles/[id]/analyze
+- /api/optimizer/articles/[id]/analyze\n- /api/optimizer/articles/[id]/competitors
 - /api/optimizer/articles/[id]/optimize
 - /api/optimizer/articles/[id]/optimize/[optimizationId]
 
