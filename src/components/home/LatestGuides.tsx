@@ -18,6 +18,7 @@ interface Guide {
 export function LatestGuides() {
   const [guides, setGuides] = useState<Guide[]>([])
   const [loading, setLoading] = useState(true)
+  const [failed, setFailed] = useState(false)
 
   useEffect(() => {
     fetch("/api/guides?limit=3")
@@ -71,7 +72,19 @@ export function LatestGuides() {
     )
   }
 
-  if (guides.length === 0) return null
+  if (guides.length === 0) {
+    return (
+      <section className="border-b border-gray-200/60 py-12 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-xl font-bold text-[#1a1a2e] sm:text-2xl">Buying guides</h2>
+            <Link href="/guides" className="text-sm font-semibold text-[#1a1a2e]">Browse all</Link>
+          </div>
+          <p className="mt-3 rounded-xl border border-gray-200 bg-gray-50 p-5 text-sm text-gray-600">{failed ? "This section is temporarily unavailable. You can still browse its main page." : "Nothing has been published in this section yet."}</p>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section className="py-16 border-b border-gray-200/60">
