@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { optimizerArticleInputSchema } from "@/lib/optimizer/article-schema"
-
-const updateSchema = optimizerArticleInputSchema.omit({ projectId: true })
+import { optimizerArticleUpdateSchema } from "@/lib/optimizer/article-schema"
 
 async function findOwnedArticle(id: string, userId: string) {
   return db.optimizerArticle.findFirst({
@@ -41,7 +39,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "Invalid JSON request body." }, { status: 400 })
   }
 
-  const parsed = updateSchema.safeParse(body)
+  const parsed = optimizerArticleUpdateSchema.safeParse(body)
   if (!parsed.success) {
     return NextResponse.json(
       { error: parsed.error.issues[0]?.message || "Invalid article data.", details: parsed.error.flatten() },
