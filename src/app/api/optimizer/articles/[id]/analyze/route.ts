@@ -55,7 +55,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
             title: issue.title,
             description: issue.description,
             suggestion: issue.suggestion,
-            evidence: issue.evidence,
+            evidence: issue.evidence ?? undefined,
           })),
         },
       },
