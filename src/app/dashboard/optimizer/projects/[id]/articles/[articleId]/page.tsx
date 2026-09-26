@@ -3,10 +3,11 @@ import { db } from "@/lib/db"
 import { notFound, redirect } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
-import { EditArticleForm } from "@/components/optimizer/EditArticleForm"\nimport { ImportArticleButton } from "@/components/optimizer/ImportArticleButton"
-
+import { EditArticleForm } from "@/components/optimizer/EditArticleForm"
+import { ImportArticleButton } from "@/components/optimizer/ImportArticleButton"
 
 export const dynamic = "force-dynamic"
+
 export default async function OptimizerArticlePage({
   params,
 }: {
@@ -38,6 +39,7 @@ export default async function OptimizerArticlePage({
         </p>
       </div>
       <div className="rounded-xl border border-gray-200 bg-white p-6">
+        <ImportArticleButton articleId={article.id} disabled={!article.sourceUrl} />
         <EditArticleForm article={article} />
       </div>
     </main>
