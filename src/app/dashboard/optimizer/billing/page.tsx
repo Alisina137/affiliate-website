@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth"
 import { getOptimizerUsageSummary } from "@/lib/optimizer/entitlements"
-import { OPTIMIZER_PLANS } from "@/lib/optimizer/plans"
+import { OPTIMIZER_PLANS } from "@/lib/optimizer/plans"\nimport { stripeConfigured } from "@/lib/optimizer/billing/stripe"\nimport { db } from "@/lib/db"\nimport { BillingActions } from "@/components/optimizer/BillingActions"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 
@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic"
 export default async function OptimizerBillingPage() {
   const session = await auth()
   if (!session?.user?.id) redirect("/login")
-  const summary = await getOptimizerUsageSummary(session.user.id)
+  const [summary, subscription] = await Promise.all([\n    getOptimizerUsageSummary(session.user.id),\n    db.optimizerSubscription.findUnique({ where: { userId: session.user.id } }),\n  ])\n  const billingConfigured = stripeConfigured()
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
