@@ -1,4 +1,5 @@
 import { lookup } from "node:dns/promises"
+import type { LookupAddress } from "node:dns"
 import http from "node:http"
 import https from "node:https"
 import { isIP } from "node:net"
