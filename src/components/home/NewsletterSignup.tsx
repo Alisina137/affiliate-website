@@ -64,6 +64,8 @@ export function NewsletterSignup() {
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 max-w-xl mx-auto">
           <input
             type="text"
+            aria-label="Your name"
+            autoComplete="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Your name (optional)"
@@ -71,6 +73,8 @@ export function NewsletterSignup() {
           />
           <input
             type="email"
+            aria-label="Email address"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email address"
@@ -94,14 +98,14 @@ export function NewsletterSignup() {
         </div>
 
         {status === "success" && (
-          <div className="flex items-center justify-center gap-2 text-emerald-400 bg-emerald-500/10 rounded-lg px-3 sm:px-4 py-2 max-w-xl mx-auto text-sm">
+          <div role="status" aria-live="polite" className="flex items-center justify-center gap-2 text-emerald-400 bg-emerald-500/10 rounded-lg px-3 sm:px-4 py-2 max-w-xl mx-auto text-sm">
             <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
             <span>{message}</span>
           </div>
         )}
 
         {status === "error" && (
-          <div className="flex items-center justify-center gap-2 text-red-400 bg-red-500/10 rounded-lg px-3 sm:px-4 py-2 max-w-xl mx-auto text-sm">
+          <div role="alert" className="flex items-center justify-center gap-2 text-red-400 bg-red-500/10 rounded-lg px-3 sm:px-4 py-2 max-w-xl mx-auto text-sm">
             <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5" />
             <span>{message}</span>
           </div>

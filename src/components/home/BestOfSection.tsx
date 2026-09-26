@@ -16,6 +16,7 @@ interface BestOf {
 export function BestOfSection() {
   const [bestOf, setBestOf] = useState<BestOf[]>([])
   const [loading, setLoading] = useState(true)
+  const [failed, setFailed] = useState(false)
 
   useEffect(() => {
     fetch("/api/best?limit=3")
@@ -25,28 +26,8 @@ export function BestOfSection() {
         setLoading(false)
       })
       .catch(() => {
-        setBestOf([
-          {
-            id: "1",
-            title: "Best Gaming Laptops",
-            slug: "best-gaming-laptops",
-            excerpt: "Top gaming laptops for every budget.",
-            entries: [
-              { product: { name: "ASUS ROG Zephyrus" } },
-              { product: { name: "MSI Stealth" } }
-            ]
-          },
-          {
-            id: "2",
-            title: "Best Wireless Headphones",
-            slug: "best-wireless-headphones",
-            excerpt: "The best wireless headphones in 2026.",
-            entries: [
-              { product: { name: "Sony WH-1000XM5" } },
-              { product: { name: "Bose QC45" } }
-            ]
-          }
-        ])
+        setFailed(true)
+        setBestOf([])
         setLoading(false)
       })
   }, [])
@@ -71,7 +52,19 @@ export function BestOfSection() {
     )
   }
 
-  if (bestOf.length === 0) return null
+  if (bestOf.length === 0) {
+    return (
+      <section className="border-b border-gray-200/60 py-12 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-xl font-bold text-[#1a1a2e] sm:text-2xl">Best-of lists</h2>
+            <Link href="/best" className="text-sm font-semibold text-[#1a1a2e]">Browse all</Link>
+          </div>
+          <p className="mt-3 rounded-xl border border-gray-200 bg-gray-50 p-5 text-sm text-gray-600">{failed ? "This section is temporarily unavailable. You can still browse its main page." : "Nothing has been published in this section yet."}</p>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section className="py-16 border-b border-gray-200/60">

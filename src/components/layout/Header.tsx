@@ -58,6 +58,8 @@ export function Header() {
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 hover:bg-gray-100 rounded-lg transition-colors touch-target"
                   aria-label="User menu"
+                  aria-expanded={isDropdownOpen}
+                  aria-haspopup="menu"
                 >
                   <div className="w-7 h-7 sm:w-8 sm:h-8 bg-[#1a1a2e] rounded-full flex items-center justify-center text-white text-xs sm:text-sm font-medium">
                     {session.user?.name?.[0] || session.user?.email?.[0] || "U"}
@@ -122,6 +124,8 @@ export function Header() {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="md:hidden p-1.5 sm:p-2 hover:bg-gray-100 rounded-full transition-colors touch-target"
               aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-navigation"
             >
               {isMobileMenuOpen ? (
                 <X className="h-4 w-4 sm:h-5 sm:w-5 text-gray-500" />
@@ -134,7 +138,7 @@ export function Header() {
       </div>
 
       {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-gray-100 bg-white px-4 py-4 space-y-4">
+        <div id="mobile-navigation" className="md:hidden border-t border-gray-100 bg-white px-4 py-4 space-y-4">
           <nav className="flex flex-col gap-3">
             <Link href="/categories" className="text-sm text-gray-600 hover:text-[#1a1a2e] transition-colors py-2 touch-target" onClick={() => setIsMobileMenuOpen(false)}>Categories</Link>
             <Link href="/reviews" className="text-sm text-gray-600 hover:text-[#1a1a2e] transition-colors py-2 touch-target" onClick={() => setIsMobileMenuOpen(false)}>Reviews</Link>

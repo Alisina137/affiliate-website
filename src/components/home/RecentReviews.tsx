@@ -20,6 +20,7 @@ interface Review {
 export function RecentReviews() {
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
+  const [failed, setFailed] = useState(false)
 
   useEffect(() => {
     fetch("/api/reviews?limit=3")
@@ -29,30 +30,8 @@ export function RecentReviews() {
         setLoading(false)
       })
       .catch(() => {
-        setReviews([
-          {
-            id: "1",
-            title: "Best Laptop for Creatives",
-            slug: "best-laptop-creatives",
-            excerpt: "After weeks of testing, this is the ultimate creative powerhouse.",
-            rating: 4.9,
-            productName: "MacBook Pro 16-inch",
-            productSlug: "macbook-pro-16",
-            authorName: "Jane Smith",
-            publishedAt: "2026-08-25"
-          },
-          {
-            id: "2",
-            title: "The Perfect Noise-Canceling Headphones",
-            slug: "perfect-noise-canceling-headphones",
-            excerpt: "Industry-leading ANC that transforms your listening experience.",
-            rating: 4.8,
-            productName: "Sony WH-1000XM5",
-            productSlug: "sony-wh-1000xm5",
-            authorName: "Mike Johnson",
-            publishedAt: "2026-08-20"
-          }
-        ])
+        setFailed(true)
+        setReviews([])
         setLoading(false)
       })
   }, [])
@@ -78,7 +57,19 @@ export function RecentReviews() {
     )
   }
 
-  if (reviews.length === 0) return null
+  if (reviews.length === 0) {
+    return (
+      <section className="border-b border-gray-200/60 py-12 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-xl font-bold text-[#1a1a2e] sm:text-2xl">Recent reviews</h2>
+            <Link href="/reviews" className="text-sm font-semibold text-[#1a1a2e]">Browse all</Link>
+          </div>
+          <p className="mt-3 rounded-xl border border-gray-200 bg-gray-50 p-5 text-sm text-gray-600">{failed ? "This section is temporarily unavailable. You can still browse its main page." : "Nothing has been published in this section yet."}</p>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section className="py-16 border-b border-gray-200/60">

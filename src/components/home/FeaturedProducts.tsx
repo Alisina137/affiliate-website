@@ -20,6 +20,7 @@ interface Product {
 export function FeaturedProducts() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const [failed, setFailed] = useState(false)
 
   useEffect(() => {
     fetch("/api/products?featured=true&limit=5")
@@ -29,63 +30,8 @@ export function FeaturedProducts() {
         setLoading(false)
       })
       .catch(() => {
-        setProducts([
-          {
-            id: "1",
-            name: "MacBook Pro 16-inch",
-            slug: "macbook-pro-16",
-            price: 2499,
-            currency: "USD",
-            rating: 4.9,
-            reviewCount: 156,
-            images: [],
-            brand: { name: "Apple" }
-          },
-          {
-            id: "2",
-            name: "Sony WH-1000XM5",
-            slug: "sony-wh-1000xm5",
-            price: 399,
-            currency: "USD",
-            rating: 4.8,
-            reviewCount: 234,
-            images: [],
-            brand: { name: "Sony" }
-          },
-          {
-            id: "3",
-            name: "Dell XPS 15",
-            slug: "dell-xps-15",
-            price: 1899,
-            currency: "USD",
-            rating: 4.7,
-            reviewCount: 89,
-            images: [],
-            brand: { name: "Dell" }
-          },
-          {
-            id: "4",
-            name: "AirPods Pro 2",
-            slug: "airpods-pro-2",
-            price: 249,
-            currency: "USD",
-            rating: 4.6,
-            reviewCount: 312,
-            images: [],
-            brand: { name: "Apple" }
-          },
-          {
-            id: "5",
-            name: "Samsung Galaxy S24",
-            slug: "samsung-galaxy-s24",
-            price: 1199,
-            currency: "USD",
-            rating: 4.5,
-            reviewCount: 178,
-            images: [],
-            brand: { name: "Samsung" }
-          }
-        ])
+        setFailed(true)
+        setProducts([])
         setLoading(false)
       })
   }, [])
@@ -111,7 +57,17 @@ export function FeaturedProducts() {
     )
   }
 
-  if (products.length === 0) return null
+  if (products.length === 0) {
+    return (
+      <section className="border-b border-gray-200/60 py-12 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 className="text-xl font-bold text-[#1a1a2e] sm:text-2xl">Featured Products</h2>
+          <p className="mt-3 rounded-xl border border-gray-200 bg-gray-50 p-5 text-sm text-gray-600">{failed ? "Featured products are temporarily unavailable. Browse all products instead." : "No featured products have been published yet."}</p>
+          <Link href="/products" className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-[#1a1a2e]">Browse products <ArrowRight className="h-4 w-4" /></Link>
+        </div>
+      </section>
+    )
+  }
 
   const heroProduct = products[0]
   const gridProducts = products.slice(1, 5)
@@ -136,7 +92,7 @@ export function FeaturedProducts() {
           ))}
         </div>
 
-        <div className="md:hidden space-y-4">
+        <div className="space-y-4 sm:hidden">
           <ProductCard product={heroProduct} isHero />
           <div className="grid grid-cols-2 gap-3">
             {gridProducts.map((product) => (
@@ -145,7 +101,7 @@ export function FeaturedProducts() {
           </div>
         </div>
 
-        <div className="hidden sm:grid md:hidden grid-cols-2 gap-4">
+        <div className="hidden grid-cols-2 gap-4 sm:grid md:hidden">
           <div className="col-span-1">
             <ProductCard product={heroProduct} isHero />
           </div>
