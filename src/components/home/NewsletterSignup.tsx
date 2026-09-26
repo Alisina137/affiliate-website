@@ -64,6 +64,8 @@ export function NewsletterSignup() {
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 max-w-xl mx-auto">
           <input
             type="text"
+            aria-label="Your name"
+            autoComplete="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Your name (optional)"
@@ -71,6 +73,8 @@ export function NewsletterSignup() {
           />
           <input
             type="email"
+            aria-label="Email address"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email address"
