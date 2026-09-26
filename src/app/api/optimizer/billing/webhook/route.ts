@@ -44,7 +44,7 @@ export async function POST(request: Request) {
 
   const item = subscription.items?.data?.[0]
   const userId = subscription.metadata?.userId
-  const plan = planFromStripePrice(item?.price?.id) || (subscription.metadata?.plan as "STARTER" | "PRO" | "AGENCY" | undefined)
+  const plan = planFromStripePrice(item?.price?.id)
   if (!userId || !plan || !["STARTER", "PRO", "AGENCY"].includes(plan)) {
     return NextResponse.json({ error: "Optimizer subscription metadata or price mapping is invalid." }, { status: 400 })
   }
