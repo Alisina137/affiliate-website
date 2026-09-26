@@ -67,12 +67,13 @@ export async function analyzeCompetitors(articleContent: string, urls: string[])
   }
 
   const gaps: CompetitorIntelligence["gaps"] = []
+  const sharedThreshold = competitors.length === 1 ? 1 : 2
   const commonTerms = new Map<string, number>()
   for (const competitor of competitors) {
     for (const item of competitor.topTerms) commonTerms.set(item.term, (commonTerms.get(item.term) || 0) + 1)
   }
   for (const [term, count] of [...commonTerms.entries()].sort((a,b) => b[1]-a[1])) {
-    if (!ownTerms.has(term) && count >= Math.min(2, competitors.length)) {
+    if (!ownTerms.has(term) && count >= sharedThreshold) {
       gaps.push({ type: "TOPIC_TERM", label: term, evidence: `Observed among prominent terms in ${count} of ${competitors.length} supplied competitor page(s), but not in your article.` })
     }
     if (gaps.filter((gap) => gap.type === "TOPIC_TERM").length >= 10) break
