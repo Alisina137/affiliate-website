@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
-import { planFromStripePrice, verifyStripeSignature } from "@/lib/optimizer/billing/stripe"
+import { planFromStripePrice, stripeRequest, verifyStripeSignature } from "@/lib/optimizer/billing/stripe"
 
 export const runtime = "nodejs"
 
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Optimizer subscription metadata or price mapping is invalid." }, { status: 400 })
   }
 
-  const status = event.type === "customer.subscription.deleted" ? "CANCELED" : subscriptionStatus(subscription.status)
+  const status = subscriptionStatus(subscription.status)
   await db.optimizerSubscription.upsert({
     where: { userId },
     create: {
