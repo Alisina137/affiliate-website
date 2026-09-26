@@ -5,6 +5,7 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { EditArticleForm } from "@/components/optimizer/EditArticleForm"
 import { ImportArticleButton } from "@/components/optimizer/ImportArticleButton"
+import { AnalyzeArticleButton } from "@/components/optimizer/AnalyzeArticleButton"
 
 export const dynamic = "force-dynamic"
 
@@ -37,6 +38,12 @@ export default async function OptimizerArticlePage({
         <p className="mt-2 text-sm text-gray-500">
           {article._count.analyses} analyses · Last updated {article.updatedAt.toLocaleDateString()}
         </p>
+      </div>
+      <div className="mb-5 flex flex-wrap items-center gap-3">
+        <AnalyzeArticleButton articleId={article.id} disabled={!article.content || !article.targetQuery} />
+        {article._count.analyses > 0 && (
+          <Link href={`/dashboard/optimizer/projects/${id}/articles/${article.id}/analysis`} className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-semibold text-[#1a1a2e]">View latest analysis</Link>
+        )}
       </div>
       <div className="rounded-xl border border-gray-200 bg-white p-6">
         <ImportArticleButton articleId={article.id} disabled={!article.sourceUrl} />

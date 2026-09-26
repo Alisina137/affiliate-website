@@ -1,42 +1,53 @@
 # Affiliate — Project State
 
 ## Current phase
-Phase 3 — Safe Article URL Extraction & Ingestion
+Phase 4 — Analysis Engine & Explainable Scoring
 
 ## Baseline
-The repository contains the existing affiliate publishing/CMS platform plus the isolated Affiliate optimizer SaaS foundation from Phase 1. Existing public content, products, categories, affiliate links, admin tools, analytics, authentication, AI content infrastructure, tests, and deployment workflows remain preserved.
-
-## Product direction
-Affiliate is a modular platform. The current implementation area is the **Affiliate Content & Monetization Optimizer**, kept isolated from the legacy publishing Article model so customer-owned optimizer data does not collide with public CMS content.
+Affiliate contains the existing publishing/CMS platform plus an isolated Affiliate Content & Monetization Optimizer SaaS area. Public CMS content remains separate from customer-owned optimizer projects and articles.
 
 ## Completed outcomes
 
 ### Phase 1 — Optimizer Foundation
-- User-owned optimizer projects.
-- Dedicated optimizer article, analysis, issue, and usage models.
-- Protected optimizer dashboard and project routes.
-- Auth.js/NextAuth and Prisma/PostgreSQL reused.
-- Server-side ownership filters established for optimizer data.
-- Project creation workflow added.
-- Vitest dependency versions aligned so installs resolve correctly.
+- User-owned optimizer projects and protected dashboard/project routes.
+- Dedicated OptimizerProject, OptimizerArticle, OptimizerAnalysis, OptimizerIssue, and OptimizerUsage models.
+- Existing Auth.js/NextAuth and Prisma/PostgreSQL infrastructure reused.
+- Server-side ownership filtering established.
+- Project creation workflow and dashboard entry added.
+- Vitest dependency versions aligned.
 
 ### Phase 2 — Article Ingestion & Management
-- Create optimizer articles inside owned projects.
-- Support source URL and/or pasted article content.
-- Target keyword, secondary keywords, country, and language fields.
-- Article list, detail, edit, and delete flows.
-- Server-side Zod validation.
-- Ownership checks on list/read/update/delete operations.
-- Transactional article creation with optimizer usage tracking.
-- Article states distinguish ready pasted content from URL-only records pending later extraction.
-- Approved analysis scoring schema aligned to SEO, Content Quality, Search Intent, Affiliate Optimization, Conversion, Technical, and Overall scores.
+- Create, list, read, edit, and delete optimizer articles inside owned projects.
+- Source URL and/or manual pasted content.
+- Target keyword, secondary keywords, country, and language.
+- Server-side Zod validation and ownership checks.
+- READY/PENDING_IMPORT states and usage tracking.
+- Analysis data model aligned to the approved six category scores plus overall score.
 
-## Data models
-- OptimizerProject
-- OptimizerArticle
-- OptimizerAnalysis
-- OptimizerIssue
-- OptimizerUsage
+### Phase 3 — Safe Article URL Extraction & Ingestion
+- Authenticated article import endpoint with ownership enforcement.
+- HTTP/HTTPS-only URL policy and credential-bearing URL rejection.
+- DNS resolution with pinned public-address requests.
+- Localhost/private/link-local/internal address blocking and redirect revalidation.
+- Timeout, redirect-count, response-size, HTTP-status, and HTML content-type limits.
+- Readable article/title extraction with manual-paste fallback.
+- READY/IMPORT_FAILED state handling and import usage events.
+- Import action in the article UI.
+- Unit coverage for private/public address policy.
+- Production build verified after Phase 3 fixes.
+
+### Phase 4 — Analysis Engine & Explainable Scoring
+- Deterministic baseline analyzer for SEO, Content Quality, Search Intent, Affiliate Optimization, Conversion, and Technical categories.
+- Overall 0–100 score calculated from the six approved category scores.
+- Evidence-backed issues with Critical/High/Medium/Low severity and recommended actions.
+- Authenticated analysis API with ownership enforcement.
+- Immutable analysis snapshots and persisted issue records.
+- Latest-analysis dashboard with six score cards and prioritized recommendations.
+- Analysis history with score change versus the previous analysis.
+- Analyze Article action from the article detail page.
+- Usage tracking for completed analyses.
+- Unit coverage for score bounds and explainable weak-content issues.
+- No paid/external AI required for baseline scoring; later AI assistance can augment recommendations without making baseline scores opaque.
 
 ## Optimizer routes
 - /dashboard/optimizer
@@ -45,34 +56,31 @@ Affiliate is a modular platform. The current implementation area is the **Affili
 - /dashboard/optimizer/projects/[id]
 - /dashboard/optimizer/projects/[id]/articles/new
 - /dashboard/optimizer/projects/[id]/articles/[articleId]
+- /dashboard/optimizer/projects/[id]/articles/[articleId]/analysis
+- /dashboard/optimizer/projects/[id]/articles/[articleId]/history
 - /api/optimizer/projects
 - /api/optimizer/articles
 - /api/optimizer/articles/[id]
+- /api/optimizer/articles/[id]/import
+- /api/optimizer/articles/[id]/analyze
 
 ## Architecture decisions
-1. Preserve the legacy CMS Article model.
-2. Keep optimizer data in dedicated models.
+1. Preserve the legacy CMS Article model and existing publishing platform.
+2. Keep optimizer customer data isolated in dedicated models.
 3. Reuse existing authentication and PostgreSQL infrastructure.
-4. Enforce user ownership server-side on every optimizer query and mutation.
-5. URL extraction remains separate from raw article persistence so blocked sites can later fall back to manual paste.
-6. No paid external research or AI provider is required for Phases 1–2.
-7. Continue the repository's existing Prisma workflow; no migration history is invented retroactively.
-
-## Verification requirements
-After pulling the latest main branch:
-- install dependencies;
-- generate Prisma Client;
-- apply the current Prisma schema to the development database using the repository's existing database workflow;
-- run lint/build and smoke-test project/article CRUD.
+4. Enforce ownership server-side on every optimizer read and mutation.
+5. Keep URL extraction separate from persistence so manual input remains a reliable fallback.
+6. Keep baseline scoring deterministic and explainable; AI may augment recommendations later.
+7. Preserve each analysis as history rather than overwriting prior scores.
+8. Continue the repository's existing Prisma workflow; do not invent migration history retroactively.
 
 ## Deferred to later phases
-- Safe URL fetch/extraction pipeline with SSRF protections and manual fallback.
-- Analysis engine and explainable scoring.
-- AI provider abstraction and structured outputs.
-- Rewrite/optimization workflow.
+- AI provider abstraction and structured AI recommendations.
+- Original → Suggested rewrite/optimization workflow.
 - Billing, plans, credits, Stripe, and hard usage limits.
+- Advanced SERP/competitor data.
 - Exports/reporting.
 - Admin optimizer analytics.
 
 ## Next phase
-Phase 3 should implement **safe article URL extraction and ingestion**: HTTP/HTTPS-only fetches, private/internal address blocking, redirect/timeout/size/content-type limits, HTML parsing/main-content extraction, import status/error handling, and manual-paste fallback.
+Phase 5 should implement the **AI-assisted optimization workflow**: provider abstraction, structured and validated recommendations/rewrites, Original → Suggested review, accept/reject controls, and optimization history without automatically overwriting source content.
