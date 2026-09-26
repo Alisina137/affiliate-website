@@ -694,8 +694,11 @@ model OptimizerArticle {
   project     OptimizerProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
   title       String
   sourceUrl   String?  @db.Text
-  content     String   @db.Text
+  content     String?  @db.Text
   targetQuery String?
+  secondaryKeywords String[] @default([])
+  country     String   @default("US")
+  language    String   @default("en")
   status      String   @default("DRAFT")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -716,10 +719,13 @@ model OptimizerAnalysis {
   overallScore   Int?
   seoScore       Int?
   contentScore   Int?
+  intentScore    Int?
   affiliateScore Int?
-  trustScore     Int?
+  conversionScore Int?
+  technicalScore Int?
   summary        String?  @db.Text
   inputSnapshot  Json?
+  analysisData   Json?
   createdAt      DateTime @default(now())
   completedAt    DateTime?
 
