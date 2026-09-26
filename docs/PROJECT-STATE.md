@@ -1,7 +1,7 @@
 # Affiliate — Project State
 
 ## Current phase
-Phase 5 — AI-Assisted Optimization Workflow
+Phase 6 — Plans, Usage Limits & Billing Foundations
 
 ## Baseline
 Affiliate contains the existing publishing/CMS platform plus an isolated Affiliate Content & Monetization Optimizer SaaS area. Public CMS content remains separate from customer-owned optimizer projects and articles.
@@ -62,8 +62,20 @@ Affiliate contains the existing publishing/CMS platform plus an isolated Affilia
 - Prompt-safety builder treats article text as untrusted data and prohibits fabricated metrics/claims for future remote providers.
 - Provider contract unit coverage added.
 
+### Phase 6 — Plans, Usage Limits & Billing Foundations
+- Independent Free, Starter, Pro, and Agency optimizer plan catalog with approved monthly limits.
+- Server-side project, analysis, and AI optimization entitlement checks.
+- Free plan works without a payment provider; paid entitlements are represented by an isolated optimizer subscription model.
+- Authenticated usage-summary API and Plan & Usage dashboard.
+- Usage is measured from persisted optimizer usage events within the active subscription period or UTC calendar month for Free.
+- Billing UI does not fake checkout: paid checkout remains disabled until a payment provider is configured.
+- No bundle discounts, shared credits, coupons, or cross-module subscriptions introduced.
+- Unit coverage for approved plan limits.
+- Database application remains gated by the pre-existing `settings` table drift; no destructive schema command is authorized.
+
 ## Optimizer routes
 - /dashboard/optimizer
+- /dashboard/optimizer/billing
 - /dashboard/optimizer/projects
 - /dashboard/optimizer/projects/new
 - /dashboard/optimizer/projects/[id]
@@ -72,6 +84,7 @@ Affiliate contains the existing publishing/CMS platform plus an isolated Affilia
 - /dashboard/optimizer/projects/[id]/articles/[articleId]/analysis
 - /dashboard/optimizer/projects/[id]/articles/[articleId]/history
 - /dashboard/optimizer/projects/[id]/articles/[articleId]/optimize
+- /api/optimizer/usage
 - /api/optimizer/projects
 - /api/optimizer/articles
 - /api/optimizer/articles/[id]
@@ -93,10 +106,10 @@ Affiliate contains the existing publishing/CMS platform plus an isolated Affilia
 10. Never apply generated content until the user explicitly accepts a stored suggestion.
 
 ## Deferred to later phases
-- Billing, plans, credits, Stripe, and hard usage limits.
+- Live payment checkout, webhook synchronization, and customer billing portal after a payment provider is configured.
 - Advanced SERP/competitor data.
 - Exports/reporting.
 - Admin optimizer analytics.
 
 ## Next phase
-Phase 6 should implement **plans, server-side usage limits, and billing foundations** while preserving the product rule that Affiliate modules remain independently subscribed SaaS products.
+Phase 7 should add **production payment-provider integration and subscription lifecycle synchronization** only after provider credentials/products are available and the existing database `settings` drift is safely reconciled.
