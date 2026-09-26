@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { assertOptimizerUsageAllowed } from "@/lib/optimizer/entitlements"
-import { getOptimizerAIProvider, optimizationOperationSchema, optimizationResultSchema, OptimizerAIProviderError } from "@/lib/optimizer/ai/provider"
+import { getOptimizerAIProvider, optimizationOperationSchema, OptimizerAIProviderError } from "@/lib/optimizer/ai/provider"
 import { z } from "zod"
 
 const requestSchema = z.object({
@@ -36,7 +36,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   const provider = getOptimizerAIProvider()
   try {
-    const result = optimizationResultSchema.parse(await provider.optimize({
+    const result = await provider.optimize({
       operation: parsed.data.operation,
       originalContent: parsed.data.originalContent,
       targetQuery: article.targetQuery,
