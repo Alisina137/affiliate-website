@@ -95,6 +95,20 @@ export default async function DashboardPage() {
         </div>
       </div>
 
+      {/* Affiliate Optimizer */}
+      <div className="card-elevated p-5 sm:p-6 mb-8 sm:mb-12 border border-indigo-100">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">New SaaS workspace</p>
+            <h2 className="mt-1 text-lg font-bold text-[#1a1a2e]">Affiliate Content & Monetization Optimizer</h2>
+            <p className="mt-1 text-sm text-gray-500">Organize affiliate sites and articles, then analyze SEO, content quality, trust, and monetization opportunities.</p>
+          </div>
+          <Link href="/dashboard/optimizer" className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#1a1a2e] px-4 py-2.5 text-sm font-semibold text-white whitespace-nowrap">
+            Open Optimizer <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </div>
+
       {/* Quick Actions & Account Settings */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8 sm:mb-12">
         {/* Quick Actions */}
