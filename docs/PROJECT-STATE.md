@@ -1,7 +1,7 @@
 # Affiliate — Project State
 
 ## Current phase
-Phase 7 — Production Billing & Subscription Lifecycle
+Phase 8 — Production AI Provider & Optimization Safeguards
 
 ## Baseline
 Affiliate contains the existing publishing/CMS platform plus an isolated Affiliate Content & Monetization Optimizer SaaS area. Public CMS content remains separate from customer-owned optimizer projects and articles.
@@ -87,6 +87,19 @@ Affiliate contains the existing publishing/CMS platform plus an isolated Affilia
 - Free remains fully functional when Stripe is unconfigured.
 - Stripe signature and Price-ID mapping unit coverage added.
 - Billing setup and required environment variables documented in `docs/OPTIMIZER-BILLING.md`.
+
+### Phase 8 — Production AI Provider & Optimization Safeguards
+- Production OpenAI provider added behind the existing OptimizerAIProvider abstraction.
+- Local deterministic provider remains the safe default; remote AI is explicitly enabled with OPTIMIZER_AI_PROVIDER=openai.
+- OpenAI Responses API requests use strict JSON-schema structured output and Zod validation before persistence.
+- Article content is explicitly treated as untrusted data and isolated from editing instructions.
+- Prompt safeguards prohibit fabricated prices, discounts, ratings, reviews, specifications, availability, SEO metrics, traffic, revenue, conversion claims, testing experience, deceptive scarcity, and guarantees.
+- User instructions cannot override the factuality/security boundary.
+- Remote provider has a 45-second timeout and controlled configuration/provider/invalid-response errors.
+- Suggestions still require explicit Accept/Reject and never overwrite article content automatically.
+- Provider/model and available token usage are persisted in optimization and usage metadata.
+- Unit coverage added for provider selection, structured remote output/token metadata, and prompt-injection/factuality boundaries.
+- Production AI configuration documented in `docs/OPTIMIZER-AI.md`.
 
 ## Optimizer routes
 - /dashboard/optimizer

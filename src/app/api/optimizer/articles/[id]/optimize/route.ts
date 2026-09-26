@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { assertOptimizerUsageAllowed } from "@/lib/optimizer/entitlements"
-import { getOptimizerAIProvider, optimizationOperationSchema, optimizationResultSchema } from "@/lib/optimizer/ai/provider"
+import { getOptimizerAIProvider, optimizationOperationSchema, OptimizerAIProviderError } from "@/lib/optimizer/ai/provider"
 import { z } from "zod"
 
 const requestSchema = z.object({
@@ -36,13 +36,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   const provider = getOptimizerAIProvider()
   try {
-    const result = optimizationResultSchema.parse(await provider.optimize({
+    const result = await provider.optimize({
       operation: parsed.data.operation,
       originalContent: parsed.data.originalContent,
       targetQuery: article.targetQuery,
       articleTitle: article.title,
       instructions: parsed.data.instructions,
-    }))
+    })
 
     const optimization = await db.$transaction(async (tx) => {
       const created = await tx.optimizerOptimization.create({
@@ -56,17 +56,21 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
           suggestedContent: result.suggestedContent,
           rationale: result.rationale,
           warnings: result.warnings,
-          metadata: { instructions: parsed.data.instructions || null },
+          metadata: { instructions: parsed.data.instructions || null, inputTokens: result.usage?.inputTokens ?? null, outputTokens: result.usage?.outputTokens ?? null },
         },
       })
       await tx.optimizerUsage.create({
-        data: { userId: session.user.id, action: "AI_OPTIMIZATION_CREATED", metadata: { articleId: article.id, optimizationId: created.id, operation: parsed.data.operation, provider: provider.name } },
+        data: { userId: session.user.id, action: "AI_OPTIMIZATION_CREATED", metadata: { articleId: article.id, optimizationId: created.id, operation: parsed.data.operation, provider: provider.name, model: provider.model, inputTokens: result.usage?.inputTokens ?? null, outputTokens: result.usage?.outputTokens ?? null } },
       })
       return created
     })
     return NextResponse.json({ optimization }, { status: 201 })
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Optimization failed." }, { status: 502 })
+    if (error instanceof OptimizerAIProviderError) {
+      const status = error.code === "AI_CONFIGURATION_ERROR" ? 503 : 502
+      return NextResponse.json({ error: error.message, code: error.code }, { status })
+    }
+    return NextResponse.json({ error: "Optimization failed.", code: "AI_PROVIDER_ERROR" }, { status: 502 })
   }
 }
 
