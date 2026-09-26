@@ -12,7 +12,7 @@ type Optimization = {
   suggestedContent: string
   rationale: string | null
   warnings: string[]
-  createdAt: string | Date
+  createdAt: Date
 }
 
 export function OptimizationWorkspace({ articleId, initialContent, initialOptimizations }: { articleId: string; initialContent: string; initialOptimizations: Optimization[] }) {
