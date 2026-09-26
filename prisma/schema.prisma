@@ -551,6 +551,7 @@ model User {
   optimizerAnalyses  OptimizerAnalysis[]
   optimizerUsage     OptimizerUsage[]
   optimizerOptimizations OptimizerOptimization[]
+  optimizerSubscription OptimizerSubscription?
 
   @@map("users")
 }
@@ -789,4 +790,25 @@ model OptimizerOptimization {
   @@index([articleId, createdAt])
   @@index([userId, createdAt])
   @@map("optimizer_optimizations")
+}
+
+
+model OptimizerSubscription {
+  id                     String   @id @default(cuid())
+  userId                 String   @unique
+  user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module                 String   @default("OPTIMIZER")
+  plan                   String   @default("FREE")
+  status                 String   @default("ACTIVE")
+  provider               String?
+  providerCustomerId     String?
+  providerSubscriptionId String?  @unique
+  currentPeriodStart     DateTime?
+  currentPeriodEnd       DateTime?
+  cancelAtPeriodEnd      Boolean  @default(false)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@index([providerCustomerId])
+  @@map("optimizer_subscriptions")
 }
