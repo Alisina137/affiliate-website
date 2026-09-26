@@ -550,6 +550,7 @@ model User {
   optimizerProjects  OptimizerProject[]
   optimizerAnalyses  OptimizerAnalysis[]
   optimizerUsage     OptimizerUsage[]
+  optimizerOptimizations OptimizerOptimization[]
 
   @@map("users")
 }
@@ -704,6 +705,7 @@ model OptimizerArticle {
   updatedAt   DateTime @updatedAt
 
   analyses OptimizerAnalysis[]
+  optimizations OptimizerOptimization[]
 
   @@index([projectId, updatedAt])
   @@map("optimizer_articles")
@@ -763,4 +765,28 @@ model OptimizerUsage {
 
   @@index([userId, createdAt])
   @@map("optimizer_usage")
+}
+
+
+model OptimizerOptimization {
+  id              String   @id @default(cuid())
+  articleId       String
+  article         OptimizerArticle @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  operation       String
+  status          String   @default("SUGGESTED")
+  provider        String
+  model           String
+  originalContent String   @db.Text
+  suggestedContent String  @db.Text
+  rationale       String?  @db.Text
+  warnings        String[] @default([])
+  metadata        Json?
+  createdAt       DateTime @default(now())
+  decidedAt       DateTime?
+
+  @@index([articleId, createdAt])
+  @@index([userId, createdAt])
+  @@map("optimizer_optimizations")
 }

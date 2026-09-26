@@ -1,7 +1,7 @@
 # Affiliate — Project State
 
 ## Current phase
-Phase 4 — Analysis Engine & Explainable Scoring
+Phase 5 — AI-Assisted Optimization Workflow
 
 ## Baseline
 Affiliate contains the existing publishing/CMS platform plus an isolated Affiliate Content & Monetization Optimizer SaaS area. Public CMS content remains separate from customer-owned optimizer projects and articles.
@@ -49,6 +49,19 @@ Affiliate contains the existing publishing/CMS platform plus an isolated Affilia
 - Unit coverage for score bounds and explainable weak-content issues.
 - No paid/external AI required for baseline scoring; later AI assistance can augment recommendations without making baseline scores opaque.
 
+### Phase 5 — AI-Assisted Optimization Workflow
+- Dedicated optimizer AI provider contract, isolated from the legacy admin content generator.
+- Zod-validated optimization operations and provider outputs.
+- Development-safe deterministic provider so the workflow works without paid AI credentials.
+- Rewrite, Expand, Simplify, SEO, CTA, and Persuasion operations.
+- Original → Suggested comparison workspace with optional user instructions.
+- Suggestions persist as SUGGESTED and never overwrite article content automatically.
+- Explicit Accept applies the suggested content; Reject preserves the article; both decisions remain in history.
+- Ownership checks protect optimization creation, history, and decisions.
+- Optimization usage events and provider/model metadata are persisted.
+- Prompt-safety builder treats article text as untrusted data and prohibits fabricated metrics/claims for future remote providers.
+- Provider contract unit coverage added.
+
 ## Optimizer routes
 - /dashboard/optimizer
 - /dashboard/optimizer/projects
@@ -58,11 +71,14 @@ Affiliate contains the existing publishing/CMS platform plus an isolated Affilia
 - /dashboard/optimizer/projects/[id]/articles/[articleId]
 - /dashboard/optimizer/projects/[id]/articles/[articleId]/analysis
 - /dashboard/optimizer/projects/[id]/articles/[articleId]/history
+- /dashboard/optimizer/projects/[id]/articles/[articleId]/optimize
 - /api/optimizer/projects
 - /api/optimizer/articles
 - /api/optimizer/articles/[id]
 - /api/optimizer/articles/[id]/import
 - /api/optimizer/articles/[id]/analyze
+- /api/optimizer/articles/[id]/optimize
+- /api/optimizer/articles/[id]/optimize/[optimizationId]
 
 ## Architecture decisions
 1. Preserve the legacy CMS Article model and existing publishing platform.
@@ -73,14 +89,14 @@ Affiliate contains the existing publishing/CMS platform plus an isolated Affilia
 6. Keep baseline scoring deterministic and explainable; AI may augment recommendations later.
 7. Preserve each analysis as history rather than overwriting prior scores.
 8. Continue the repository's existing Prisma workflow; do not invent migration history retroactively.
+9. Keep optimizer AI behind a provider interface and validate structured output before persistence.
+10. Never apply generated content until the user explicitly accepts a stored suggestion.
 
 ## Deferred to later phases
-- AI provider abstraction and structured AI recommendations.
-- Original → Suggested rewrite/optimization workflow.
 - Billing, plans, credits, Stripe, and hard usage limits.
 - Advanced SERP/competitor data.
 - Exports/reporting.
 - Admin optimizer analytics.
 
 ## Next phase
-Phase 5 should implement the **AI-assisted optimization workflow**: provider abstraction, structured and validated recommendations/rewrites, Original → Suggested review, accept/reject controls, and optimization history without automatically overwriting source content.
+Phase 6 should implement **plans, server-side usage limits, and billing foundations** while preserving the product rule that Affiliate modules remain independently subscribed SaaS products.
