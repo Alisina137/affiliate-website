@@ -27,30 +27,8 @@ export function PopularComparisons() {
         setLoading(false)
       })
       .catch(() => {
-        setComparisons([
-          {
-            id: "1",
-            title: "MacBook Pro vs Dell XPS",
-            slug: "macbook-pro-vs-dell-xps",
-            excerpt: "Which premium laptop comes out on top?",
-            products: [
-              { product: { name: "MacBook Pro" } },
-              { product: { name: "Dell XPS" } }
-            ],
-            winner: "MacBook Pro"
-          },
-          {
-            id: "2",
-            title: "AirPods Pro vs Sony WF-1000XM5",
-            slug: "airpods-pro-vs-sony",
-            excerpt: "The ultimate wireless earbud showdown.",
-            products: [
-              { product: { name: "AirPods Pro" } },
-              { product: { name: "Sony WF-1000XM5" } }
-            ],
-            winner: "Sony WF-1000XM5"
-          }
-        ])
+        setFailed(true)
+        setComparisons([])
         setLoading(false)
       })
   }, [])
