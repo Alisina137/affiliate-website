@@ -42,7 +42,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       targetQuery: article.targetQuery,
       articleTitle: article.title,
       instructions: parsed.data.instructions,
-    }))
+    })
 
     const optimization = await db.$transaction(async (tx) => {
       const created = await tx.optimizerOptimization.create({
@@ -66,7 +66,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     })
     return NextResponse.json({ optimization }, { status: 201 })
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Optimization failed." }, { status: 502 })
+    if (error instanceof OptimizerAIProviderError) {
+      const status = error.code === "AI_CONFIGURATION_ERROR" ? 503 : 502
+      return NextResponse.json({ error: error.message, code: error.code }, { status })
+    }
+    return NextResponse.json({ error: "Optimization failed.", code: "AI_PROVIDER_ERROR" }, { status: 502 })
   }
 }
 
