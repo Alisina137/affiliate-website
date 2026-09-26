@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { db } from "@/lib/db"
-import { planFromStripePrice, stripeRequest, verifyStripeSignature } from "@/lib/optimizer/billing/stripe"
+import { planFromStripePrice, verifyStripeSignature } from "@/lib/optimizer/billing/stripe"
 
 export const runtime = "nodejs"
 
