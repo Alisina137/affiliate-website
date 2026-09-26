@@ -85,7 +85,7 @@ export async function analyzeCompetitors(articleContent: string, urls: string[])
   ]
   for (const [key,label] of structural) {
     const count = competitors.filter((item) => Boolean(item.signals[key])).length
-    if (!own[key] && count >= Math.min(2, competitors.length)) gaps.push({ type: "STRUCTURE", label, evidence: `Observed in ${count} of ${competitors.length} supplied competitor page(s); not detected in your stored article text.` })
+    if (!own[key] && count >= sharedThreshold) gaps.push({ type: "STRUCTURE", label, evidence: `Observed in ${count} of ${competitors.length} supplied competitor page(s); not detected in your stored article text.` })
   }
 
   return {
