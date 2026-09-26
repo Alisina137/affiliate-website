@@ -26,28 +26,8 @@ export function BestOfSection() {
         setLoading(false)
       })
       .catch(() => {
-        setBestOf([
-          {
-            id: "1",
-            title: "Best Gaming Laptops",
-            slug: "best-gaming-laptops",
-            excerpt: "Top gaming laptops for every budget.",
-            entries: [
-              { product: { name: "ASUS ROG Zephyrus" } },
-              { product: { name: "MSI Stealth" } }
-            ]
-          },
-          {
-            id: "2",
-            title: "Best Wireless Headphones",
-            slug: "best-wireless-headphones",
-            excerpt: "The best wireless headphones in 2026.",
-            entries: [
-              { product: { name: "Sony WH-1000XM5" } },
-              { product: { name: "Bose QC45" } }
-            ]
-          }
-        ])
+        setFailed(true)
+        setBestOf([])
         setLoading(false)
       })
   }, [])
