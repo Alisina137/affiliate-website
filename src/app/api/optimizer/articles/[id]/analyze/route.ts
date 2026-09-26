@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
+import { assertOptimizerUsageAllowed } from "@/lib/optimizer/entitlements"
 import { analyzeArticle } from "@/lib/optimizer/analysis-engine"
 
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -15,6 +16,13 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   if (!article) return NextResponse.json({ error: "Article not found." }, { status: 404 })
   if (!article.content?.trim()) return NextResponse.json({ error: "Article content is required before analysis." }, { status: 400 })
   if (!article.targetQuery?.trim()) return NextResponse.json({ error: "A target keyword is required before analysis." }, { status: 400 })
+
+  try {
+    await assertOptimizerUsageAllowed(session.user.id, "ARTICLE_ANALYZED")
+  } catch (error) {
+    const e = error as Error & { status?: number; code?: string; limit?: number; used?: number }
+    return NextResponse.json({ error: e.message, code: e.code, limit: e.limit, used: e.used }, { status: e.status || 500 })
+  }
 
   const result = analyzeArticle({
     title: article.title,

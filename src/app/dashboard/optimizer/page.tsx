@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { redirect } from "next/navigation"
 import Link from "next/link"
-import { ArrowRight, FileText, FolderKanban, Gauge, Plus } from "lucide-react"
+import { ArrowRight, CreditCard, FileText, FolderKanban, Gauge, Plus } from "lucide-react"
 
 
 export const dynamic = "force-dynamic"
@@ -37,9 +37,14 @@ export default async function OptimizerDashboardPage() {
           <h1 className="text-3xl font-bold text-[#1a1a2e]">Content & monetization workspace</h1>
           <p className="mt-2 text-gray-600 max-w-2xl">Create projects, add affiliate articles, and prepare them for evidence-based SEO, content, trust, and monetization analysis.</p>
         </div>
-        <Link href="/dashboard/optimizer/projects/new" className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#1a1a2e] px-4 py-2.5 text-sm font-semibold text-white">
-          <Plus className="h-4 w-4" /> New project
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/dashboard/optimizer/billing" className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-[#1a1a2e]">
+            <CreditCard className="h-4 w-4" /> Plan & usage
+          </Link>
+          <Link href="/dashboard/optimizer/projects/new" className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#1a1a2e] px-4 py-2.5 text-sm font-semibold text-white">
+            <Plus className="h-4 w-4" /> New project
+          </Link>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3 mb-8">
