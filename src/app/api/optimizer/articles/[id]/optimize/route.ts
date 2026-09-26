@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
+import { assertOptimizerUsageAllowed } from "@/lib/optimizer/entitlements"
 import { getOptimizerAIProvider, optimizationOperationSchema, optimizationResultSchema } from "@/lib/optimizer/ai/provider"
 import { z } from "zod"
 
@@ -25,6 +26,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   try { body = await request.json() } catch { return NextResponse.json({ error: "Invalid JSON request body." }, { status: 400 }) }
   const parsed = requestSchema.safeParse(body)
   if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message || "Invalid optimization request." }, { status: 400 })
+
+  try {
+    await assertOptimizerUsageAllowed(session.user.id, "AI_OPTIMIZATION_CREATED")
+  } catch (error) {
+    const e = error as Error & { status?: number; code?: string; limit?: number; used?: number }
+    return NextResponse.json({ error: e.message, code: e.code, limit: e.limit, used: e.used }, { status: e.status || 500 })
+  }
 
   const provider = getOptimizerAIProvider()
   try {
