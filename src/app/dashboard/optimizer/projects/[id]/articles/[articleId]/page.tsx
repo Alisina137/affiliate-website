@@ -41,7 +41,7 @@ export default async function OptimizerArticlePage({
       </div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <AnalyzeArticleButton articleId={article.id} disabled={!article.content || !article.targetQuery} />
-        {article._count.analyses > 0 && (
+        {article.content && (\n          <Link href={`/dashboard/optimizer/projects/${id}/articles/${article.id}/optimize`} className="rounded-lg border border-emerald-700 px-4 py-2.5 text-sm font-semibold text-emerald-800">Optimize content</Link>\n        )}\n        {article._count.analyses > 0 && (
           <Link href={`/dashboard/optimizer/projects/${id}/articles/${article.id}/analysis`} className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-semibold text-[#1a1a2e]">View latest analysis</Link>
         )}
       </div>
