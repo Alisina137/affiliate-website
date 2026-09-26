@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { assertOptimizerUsageAllowed } from "@/lib/optimizer/entitlements"
-import { getOptimizerAIProvider, optimizationOperationSchema, optimizationResultSchema } from "@/lib/optimizer/ai/provider"
+import { getOptimizerAIProvider, optimizationOperationSchema, optimizationResultSchema, OptimizerAIProviderError } from "@/lib/optimizer/ai/provider"
 import { z } from "zod"
 
 const requestSchema = z.object({
@@ -56,11 +56,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
           suggestedContent: result.suggestedContent,
           rationale: result.rationale,
           warnings: result.warnings,
-          metadata: { instructions: parsed.data.instructions || null },
+          metadata: { instructions: parsed.data.instructions || null, inputTokens: result.usage?.inputTokens ?? null, outputTokens: result.usage?.outputTokens ?? null },
         },
       })
       await tx.optimizerUsage.create({
-        data: { userId: session.user.id, action: "AI_OPTIMIZATION_CREATED", metadata: { articleId: article.id, optimizationId: created.id, operation: parsed.data.operation, provider: provider.name } },
+        data: { userId: session.user.id, action: "AI_OPTIMIZATION_CREATED", metadata: { articleId: article.id, optimizationId: created.id, operation: parsed.data.operation, provider: provider.name, model: provider.model, inputTokens: result.usage?.inputTokens ?? null, outputTokens: result.usage?.outputTokens ?? null } },
       })
       return created
     })
