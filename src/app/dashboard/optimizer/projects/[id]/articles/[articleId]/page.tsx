@@ -3,7 +3,7 @@ import { db } from "@/lib/db"
 import { notFound, redirect } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
-import { EditArticleForm } from "@/components/optimizer/EditArticleForm"
+import { EditArticleForm } from "@/components/optimizer/EditArticleForm"\nimport { ImportArticleButton } from "@/components/optimizer/ImportArticleButton"
 
 
 export const dynamic = "force-dynamic"
